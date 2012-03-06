@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from models import *
-
+from django.core.exceptions import ValidationError
 
 def getSpeciesList(spids = None):
     """
@@ -135,8 +135,8 @@ def checkQuery(postvars):
         inchikeylist = mols.values_list('inchikey',flat=True)
         idlist = mols.values_list('id',flat=True)
 
-#        tapxsams += " MoleculeInchiKey in ('%s') " % "' OR '".join( map(str, inchikeylist))
-        tapxsams += "(" + " OR ".join([" MoleculeInchiKey = '" + ikey + "'" for ikey in inchikeylist]) + ")"
+#        tapxsams += " InchiKey in ('%s') " % "' OR '".join( map(str, inchikeylist))
+        tapxsams += "(" + " OR ".join([" InchiKey = '" + ikey + "'" for ikey in inchikeylist]) + ")"
         tapcdms += "(" + " OR ".join([" MoleculeSpeciesID = %s " % ikey  for ikey in idlist]) + ")"
 
     htmlcode += "<ul class='vlist'>"
@@ -290,6 +290,34 @@ def applyStylesheet(inurl, xsl = None):
     
     return  result 
 
+def applyStylesheet2File(infile, xsl = None):
+    """
+    Applies a xslt-stylesheet to the given file
+    """
+    from django.conf import settings
+    from lxml import etree as e
+
+    xsl = settings.BASE_PATH + '/nodes/cdms/static/xsl/convertXSAMS2html.xslt'
+    xsl = settings.BASE_PATH + "/nodes/cdms/static/xsl/convertXSAMS2Rad3d.xslt"
+
+    if xsl:
+        xsl=e.XSLT(e.parse(open(xsl)))
+    else:
+        xsl=e.XSLT(e.parse(open('/home/endres/Projects/vamdc/nodes/cdms/node/convertXSAMS2html.xslt')))
+        
+    from urllib2 import urlopen
+
+    try: xml=e.parse(infile)
+    except Exception,err:
+        raise ValidationError('Could not parse XML file: %s'%err)
+    
+
+    try: result = str(xsl(xml))
+    except Exception,err:
+        raise ValidationError('Could not transform XML file: %s'%err)
+    
+    return  result
+
 
 def getHtmlNodeList():
     """
@@ -384,7 +412,7 @@ def getNodeStatistic(baseurl, inchikey, url = None):
     
     
     if not url:
-        query = "sync?REQUEST=doQuery&LANG=VSS1&FORMAT=XSAMS&QUERY=SELECT+All+WHERE++MoleculeInchiKey='%s'" % inchikey
+        query = "sync?REQUEST=doQuery&LANG=VSS1&FORMAT=XSAMS&QUERY=SELECT+All+WHERE++InchiKey='%s'" % inchikey
         url = baseurl.rstrip()+query
 
     vamdccounts = doHeadRequest(url)

@@ -136,6 +136,32 @@ def queryForm(request):
     c=RequestContext(request,{"action" : "queryPage", "species_list" : species_list})
     return render_to_response('cdmsportal/querySpecies.html', c)
 
+def tools(request):
+    """
+    """
+    print >> sys.stderr, request.method
+    if request.method == 'POST':
+        form = XsamsConversionForm(request.POST, request.FILES)
+        if form.is_valid():
+            
+            print >> sys.stderr, "IS VALID"
+            response=HttpResponse(form.cleaned_data['result'],mimetype='text/csv')
+            response['Content-Disposition'] = \
+                'attachment; filename=%s.%s'% (form.cleaned_data.get('infile') or 'output', form.cleaned_data.get('format') )
+            return response
+        else:
+            print >> sys.stderr, "IS NOT VALID"
+
+    else:
+        form = XsamsConversionForm()
+
+    #return render_to_response('upload.html', {'form': form})
+
+    
+    c=RequestContext(request,{'form':form})
+    return render_to_response('cdmsportal/tools.html', c)
+
+
 def selectSpecie(request):
     """
     Create the species selection - page from the species (model) stored in the database

@@ -194,10 +194,13 @@ def setupResults(sql):
     addStates = (not sql.requestables or 'atomstates' in sql.requestables or 'moleculestates' in sql.requestables)
     addTrans = (not sql.requestables or 'RadiativeTransitions' in sql.requestables)
 
+    datasets = Datasets.objects.filter(archiveflag=0)
+
     # Query the database and get calculated transitions (TransitionsCalc)
     transs = TransitionsCalc.objects.filter(q,specie__origin=5,
                                             specie__archiveflag=0,
-                                            dataset__archiveflag=0) #.order_by('frequency')
+                                            dataset__in=datasets)
+                                            #dataset__archiveflag=0) #.order_by('frequency')
 
     # Attach experimental transitions (TransitionsExp) to transitions
     # and obtain their methods. Do it only if transitions will be returned
@@ -221,15 +224,26 @@ def setupResults(sql):
     # attach partition functions to each specie
     attach_partionfunc(molecules)
 
+    nsources = sources.count()
+    nmolecules = molecules.count()
+    natoms = atoms.count()
+    ntranss = transs.count()
+    
+    if ntranss+nmolecules+nsources+natoms+nstates>0:
+        size_estimate='%.2f'%(ntranss*0.0014 + 0.01)
+    else: size_estimate='0.00'
+
+
     # this header info is used in xsams-header-info (html-request)
     headerinfo={\
         'Truncated':"0", # CDMS will not truncate data (at least for now)
-        'count-sources':sources.count(),
+        'count-sources':nsources, 
         'count-species':nspecies,
-        'count-molecules':molecules.count(),
-        'count-atoms':atoms.count(),
+        'count-molecules':nmolecules,
+        'count-atoms':natoms,
         'count-states':nstates,
-        'count-radiative':transs.count()
+        'count-radiative':ntranss,
+        'APPROX-SIZE':size_estimate,
     }
 
 

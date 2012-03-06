@@ -179,6 +179,7 @@ RESTRICTABLES = {
 #'AtomStateStatisticalWeight':'',
 #'AtomSymbol':'',
 'MoleculeInchiKey':'specie__inchikey',
+'InchiKey':'specie__inchikey',
 'MoleculeChemicalName':'specie__molecule__trivialname',
 #'MoleculeMolecularWeight':'',
 #'MoleculeNormalModeHarmonicFrequency':'',
