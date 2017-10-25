@@ -42,8 +42,6 @@ def format_degeneracy(value):
      else:
           return str(value)
 
-
-     
 class Molecules( Model):
      """
      The Molecules class contains general information of the species. It is on top of
@@ -63,7 +61,6 @@ class Molecules( Model):
      comment               = TextField(db_column='M_Comment', blank=True)
      class Meta:
        db_table = u'Molecules'
-       
 
 class DictAtoms( Model):
      """
@@ -81,7 +78,6 @@ class DictAtoms( Model):
      nuclearcharge         = IntegerField(db_column='DA_NuclearCharge', blank=True)
      class Meta:
        db_table = u'Dict_Atoms'
-       
 
 class Species( Model):
      """
@@ -90,6 +86,13 @@ class Species( Model):
      archived entries related to outdated versions of the specie (outdated versions are kept and
      not deleted).
      """
+
+     RECOMMENDATION_CHOICES = (
+             (0, 'recommended'),
+             (1, 'same entry as recommended one'),
+             (99, 'not recommended'),
+             )
+
      id                    = IntegerField(primary_key=True, db_column='E_ID')
      molecule              = ForeignKey(Molecules, db_column='E_M_ID')
      atom                  = ForeignKey(DictAtoms, db_column='E_DA_ID')
@@ -108,6 +111,7 @@ class Species( Model):
      dateofentry           = DateField(db_column='E_DateOfEntry')
      comment               = TextField(db_column='E_Comment')
      archiveflag           = IntegerField(db_column='E_Archive')
+     recommendationflag    = IntegerField(db_column='E_Recommendationflag', choices = RECOMMENDATION_CHOICES)
      dateactivated         = DateField(db_column='E_DateActivated')
      datearchived          = DateField(db_column='E_DateArchived')
      changedate            = DateTimeField(db_column='E_ChangeDate')
@@ -178,7 +182,6 @@ class NuclearSpinIsomers(Model):
      def lowestrovibstateid(self):
           return '%s-origin-%s' % (self.lowestrovibstate, self.specie_id)
 
-     
 class States( Model):
      """
      This class contains the states of each specie.
@@ -533,6 +536,7 @@ class TransitionsCalc( Model):
                            db_column='P_Up_EGY_ID')
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='P_Low_EGY_ID')
+     #frequencyArray        
      def __unicode__(self):
           return u'ID:%s Tag:%s Freq: %s'%(self.id,self.speciestag,self.frequency)
 
@@ -660,7 +664,6 @@ class TransitionsCalc( Model):
 ##          freqs=[self.frequency]
 ##          for trans in exptranss:
 ##               freqs.append(trans.frequency)
-
 ##          self.frequencyArray = freqs
 ##          return freqs
 
@@ -730,6 +733,9 @@ class RadiativeTransitions( Model):
                            db_column='UpperStateRef')
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='LowerStateRef')
+
+     def line_strength(self):
+         return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
      #frequencyArray        
      
      def __unicode__(self):
@@ -776,7 +782,6 @@ class RadiativeTransitions( Model):
                     formatqn(self.qnlow4),
                     formatqn(self.qnlow5),
                     formatqn(self.qnlow6))
-     
         
      class Meta:
         db_table = u'RadiativeTransitions'
@@ -839,6 +844,8 @@ class RadiativeTransitionsT( Model):
                            db_column='UpperStateRef')
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='LowerStateRef')
+     def line_strength(self):
+         return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
      #frequencyArray        
      
      def __unicode__(self):
@@ -887,7 +894,6 @@ class RadiativeTransitionsT( Model):
                     formatqn(self.qnlow5),
                     formatqn(self.qnlow6))
      
-        
      class Meta:
         db_table = u'RadiativeTransitionsT'
  

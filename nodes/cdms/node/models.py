@@ -42,8 +42,6 @@ def format_degeneracy(value):
      else:
           return str(value)
 
-
-     
 class Molecules( Model):
      """
      The Molecules class contains general information of the species. It is on top of
@@ -63,7 +61,6 @@ class Molecules( Model):
      comment               = TextField(db_column='M_Comment', blank=True)
      class Meta:
        db_table = u'Molecules'
-       
 
 class DictAtoms( Model):
      """
@@ -81,7 +78,6 @@ class DictAtoms( Model):
      nuclearcharge         = IntegerField(db_column='DA_NuclearCharge', blank=True)
      class Meta:
        db_table = u'Dict_Atoms'
-
 
 class Species( Model):
      """
@@ -121,7 +117,7 @@ class Species( Model):
      changedate            = DateTimeField(db_column='E_ChangeDate')
      class Meta:
        db_table = u'Entries'
-     
+
      #def getMassNumber(self):
      #     tag = str(self.speciestag)
      #     return tag[:-3] #self.speciestag[:-3]
@@ -134,7 +130,7 @@ class Species( Model):
           cursor = connection.cursor()
           cursor.execute("SELECT F_GetCML4XSAMS(%s) as cml ", [self.id])
           return cursor.fetchone()[0]
-     
+
      def get_shortcomment(self):
           return "%6s- v%2s:%s; %s" % (self.speciestag, self.version, self.isotopolog, self.state)
 
@@ -142,12 +138,9 @@ class Species( Model):
      cmlstring = property(CML)
      #massnumber = property(getMassNumber)
      shortcomment = property(get_shortcomment)
-          
 
      def state_html(self):
           return latex2html(self.state)
-
-
 
 class Datasets( Model):
      """
@@ -220,11 +213,10 @@ class States( Model):
      user                  = CharField(max_length=40, db_column='EGY_User')      # obsolete
      timestamp             = IntegerField(db_column='EGY_TIMESTAMP')
 
-     
      class Meta:
        db_table = u'Energies'
        ordering = ['energy']
-       
+
      def origin(self):
           return '%s-origin-%s' % (self.energyorigin, self.specie_id)
 
@@ -545,7 +537,6 @@ class TransitionsCalc( Model):
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='P_Low_EGY_ID')
      #frequencyArray        
-     
      def __unicode__(self):
           return u'ID:%s Tag:%s Freq: %s'%(self.id,self.speciestag,self.frequency)
 
@@ -570,7 +561,7 @@ class TransitionsCalc( Model):
                self.recommendations.append(i.recommended)
                self.evalrefs.append(i.source_id)
           return self.qualities
-     
+
      def attach_exp_frequencies(self):
          """
          Create lists of frequencies, units, sources, ... for each transition.
@@ -583,7 +574,6 @@ class TransitionsCalc( Model):
          - methods for experimental data
 
          """
-         
          # Attach the calculated frequency first
          self.frequencies=[self.frequency]
          self.units=[self.unit]
@@ -638,7 +628,7 @@ class TransitionsCalc( Model):
           egy_lower = formatstring(self.energylower,'%10.4lf','%10s')
           if egy_lower=='   -0.0000':
                egy_lower = '    0.0000'
-               
+
           return '%s%s%s%s%s%3s%s%s%2s%2s%2s%2s%2s%2s%2s%2s%2s%2s%2s%2s'\
                  % (formatstring(frequency,'%13.4lf','%13s'),
                     formatstring(self.uncertainty,'%8.4lf','%8s'),
@@ -689,7 +679,6 @@ class TransitionsCalc( Model):
      class Meta:
         db_table = u'Predictions'
         
-
 class RadiativeTransitions( Model):
      """
      This class contains the calculated transition frequencies (mysql-table Predictions).
@@ -734,18 +723,21 @@ class RadiativeTransitions( Model):
      references = CharField (db_column = 'ReferenceList')
      frequencymethod = IntegerField(db_column = 'FrequencyMethodRef')
      processclass = CharField(max_length=100, db_column='ProcessClass')
-     
+
      upperstateref =  ForeignKey(States, related_name='upperstate',
                                  db_column='UpperStateRef')
      lowerstateref =  ForeignKey(States, related_name='lowerstate',
                                  db_column='LowerStateRef')
-     
+
      upstate =  ForeignKey(States, related_name='upperstate',
                            db_column='UpperStateRef')
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='LowerStateRef')
+
+     def line_strength(self):
+         return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
      #frequencyArray        
-     
+
      def __unicode__(self):
           return u'ID:%s Tag:%s Freq: %s'%(self.id,self.speciestag,self.frequency)
 
@@ -754,7 +746,7 @@ class RadiativeTransitions( Model):
 
 #     def process_class(self):
 #          return eval(self.processclass)
-     
+
      def spfitstr(self, print_einsteina = False):
           if self.frequencymethod == 4:
                speciestag = -self.speciestag
@@ -764,7 +756,7 @@ class RadiativeTransitions( Model):
           egy_lower = formatstring(self.energylower,'%10.4lf','%10s')
           if egy_lower=='   -0.0000':
                egy_lower = '    0.0000'
-               
+
           if print_einsteina:
               intensity = formatstring(np.log10(self.einsteina), '%8.4lf', '%8s')
           else:
@@ -790,11 +782,10 @@ class RadiativeTransitions( Model):
                     formatqn(self.qnlow4),
                     formatqn(self.qnlow5),
                     formatqn(self.qnlow6))
-     
-        
+
      class Meta:
         db_table = u'RadiativeTransitions'
-        
+
 class RadiativeTransitionsT( Model):
      """
      This class contains the calculated transition frequencies (mysql-view RadiativeTransitionsT) 
@@ -853,6 +844,8 @@ class RadiativeTransitionsT( Model):
                            db_column='UpperStateRef')
      lostate =  ForeignKey(States, related_name='lowerstate',
                            db_column='LowerStateRef')
+     def line_strength(self):
+         return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
      #frequencyArray        
      
      def __unicode__(self):
@@ -901,7 +894,6 @@ class RadiativeTransitionsT( Model):
                     formatqn(self.qnlow5),
                     formatqn(self.qnlow6))
      
-        
      class Meta:
         db_table = u'RadiativeTransitionsT'
  
@@ -958,10 +950,7 @@ class Parameter (Model):
                return self.parameter.replace(self.parameter[u_score:u_score+2],'<sub>'+self.parameter[u_score+1:u_score+2]+'</sub>')
 #          else:
 #               return self.parameter
-          
-          
 
-        
 class TransitionsExp( Model):
      """
      This class contains the experimental transition frequencies (mysql-table Frequencies).

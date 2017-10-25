@@ -143,9 +143,10 @@ RETURNABLES = {
 #'RadTransFrequencyMethod':'RadTran.species_id',
 'RadTransFrequencyMethod':'eval(RadTran.methods)',
 'RadTransProbabilityA':'RadTran.einsteina',
-'RadTransProbabilityAUnit':'1/cm', # <-New
+'RadTransProbabilityAUnit':'1/s', # <-New
 'RadTransProbabilityIdealisedIntensity':'RadTran.intensity',
-#'RadTransProbabilityLineStrength':'RadTran.',
+'RadTransProbabilityLineStrength':'RadTran.line_strength()',
+'RadTransProbabilityLineStrengthUnit': 'cm2/molecule/cm',
 #'RadTransProbabilityLog10WeightedOscillatorStrength':'RadTran.intensity',
 'RadTransProbabilityMultipole':'E2',
 #'RadTransProbabilityOscillatorStrength':'RadTran.',
@@ -238,7 +239,6 @@ def processclass(r, op, *rhs):
     stored in a single field in the database. 
     """
     try:
-
         if op=='in':
             if not (rhs[0]=='(' and rhs[-1]==')'):
                 log.error('Values for IN not bracketed: %s'%rhs)
@@ -263,9 +263,9 @@ def processclass(r, op, *rhs):
             else:
                 return QFalse
             
-            
         return QFalse
-    except:
+    except Exception as e:
+        print >> sys.stderr, str(e)
         return QFalse
 
 def environment(r, op, *rhs):

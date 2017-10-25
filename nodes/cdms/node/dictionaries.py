@@ -143,9 +143,10 @@ RETURNABLES = {
 #'RadTransFrequencyMethod':'RadTran.species_id',
 'RadTransFrequencyMethod':'eval(RadTran.methods)',
 'RadTransProbabilityA':'RadTran.einsteina',
-'RadTransProbabilityAUnit':'1/cm', # <-New
+'RadTransProbabilityAUnit':'1/s', # <-New
 'RadTransProbabilityIdealisedIntensity':'RadTran.intensity',
-#'RadTransProbabilityLineStrength':'RadTran.',
+'RadTransProbabilityLineStrength':'RadTran.line_strength()',
+'RadTransProbabilityLineStrengthUnit': 'cm2/molecule/cm',
 #'RadTransProbabilityLog10WeightedOscillatorStrength':'RadTran.intensity',
 'RadTransProbabilityMultipole':'E2',
 #'RadTransProbabilityOscillatorStrength':'RadTran.',
@@ -261,7 +262,6 @@ def processclass(r, op, *rhs):
                 return Q(**{'hfsflag'+op:ins[3]})
             else:
                 return QFalse
-            
             
         return QFalse
     except Exception as e:
