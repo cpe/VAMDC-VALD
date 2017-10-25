@@ -1,4 +1,4 @@
-from models import *
+from node.models import *
 from django.forms import ModelForm
 from django.forms.formsets import BaseFormSet
 from django.forms.models import modelformset_factory

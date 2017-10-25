@@ -12,7 +12,7 @@ from dictionaries import *
 from itertools import chain
 from copy import deepcopy
 
-from models import *
+from node.models import *
 from vamdctap.sqlparse import *
 
 from django.template import Context, loader
@@ -135,7 +135,11 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
                 s.id = s.id_alias()
                 s.aux = True
             # attach states to molecule object
-            m.States = chain(origins, states)
+            m.States = list(chain(origins, states))
+            tests = m.States[0]
+            LOG("TEST if XML - Method exists:")
+            LOG(hasattr(tests, 'XML'))
+            LOG(m.States[0].XML())
 
         for a in atoms:
             states = a.atomstates_set.filter(Q(pk__in= up) | Q(pk__in= low))
@@ -143,7 +147,7 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
             for s in origins:
                 s.id = s.id_alias()
                 s.aux = True
-            m.States = chain(origins, states)
+            a.States = chain(origins, states)
 
         # determine the number of states
         nstates = States.objects.filter(pk__in=chain(up,low)).count()
@@ -539,7 +543,11 @@ def returnResults(tap, LIMIT=None):
     # Prepare Transitions
     if (col=='ALL' or 'radiativetransitions' in [x.lower() for x in col]):
         LOG('TRANSITIONS')
-        orderby = tap.request.get('ORDERBY','frequency')
+        orderby = tap.request.get('ORDERBY')
+        if orderby is None:
+            orderby = 'frequency'
+        else:
+            orderby = orderby[0]
         if tap.request.get('IntUnit', 'T') == 'A':
             print_einsteina = True
          

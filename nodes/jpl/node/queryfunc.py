@@ -12,7 +12,7 @@ from dictionaries import *
 from itertools import chain
 from copy import deepcopy
 
-from models import *
+from node.models import *
 from vamdctap.sqlparse import *
 
 from django.template import Context, loader
@@ -540,7 +540,11 @@ def returnResults(tap, LIMIT=None):
     # Prepare Transitions
     if (col=='ALL' or 'radiativetransitions' in [x.lower() for x in col]):
         LOG('TRANSITIONS')
-        orderby = tap.request.get('ORDERBY','frequency')
+        orderby = tap.request.get('ORDERBY')
+        if orderby is None:
+            orderby = 'frequency'
+        else:
+            orderby = orderby[0]
         if tap.request.get('IntUnit', 'T') == 'A':
             print_einsteina = True
          
