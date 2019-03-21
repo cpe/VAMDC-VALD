@@ -4,12 +4,13 @@
 import sys
 import datetime
 from xml.sax.saxutils import escape
+from collections import Iterable
 
 # Get the node-specific parts
 from django.conf import settings
 from importlib import import_module
 DICTS = import_module(settings.NODEPKG + '.dictionaries')
-from caselessdict import CaselessDict
+from requests.utils import CaseInsensitiveDict as CaselessDict
 RETURNABLES = CaselessDict(DICTS.RETURNABLES)
 
 # This must always be set.
@@ -31,7 +32,7 @@ import logging
 log = logging.getLogger('vamdc.tap.generator')
 
 # Helper function to test if an object is a list or tuple
-isiterable = lambda obj: hasattr(obj, '__iter__')
+isiterable = lambda obj: not isinstance(obj, str) and isinstance(obj, Iterable)
 
 def makeiter(obj, n=0):
     """
@@ -86,7 +87,7 @@ def GetValue(returnable_key, **kwargs):
     try:
         #obtain the RHS of the RETURNABLES dictionary
         name = RETURNABLES[returnable_key]
-    except Exception, e:
+    except Exception as e:
         # The value is not in the dictionary for the node.  This is
         # fine.  Note that this is also used by if-clauses below since
         # the empty string evaluates as False.
@@ -261,7 +262,7 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
     value = G(keyword)
     if not value:
         return ''
-    
+
     unit = G(keyword + 'Unit')
     method = G(keyword + 'Method')
     comment = G(keyword + 'Comment')
@@ -296,8 +297,11 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
         string += makeSourceRefs(refs[i])
         string += '<Value units="%s">%s</Value>' % (unit[i] or 'unitless', val)
         string += makeEvaluation( keyword, G, j=i)
-        if acc[i] is not None:
-            string += '<Accuracy>%s</Accuracy>' % acc[i]
+
+        # This is broken, makes empty <Accuracy/>.
+        # TODO: Proper solution is to add j-parameter to makeAccuracy(), similar to makeEvalution()
+        #if acc[i] is not None:
+        #    string += '<Accuracy>%s</Accuracy>' % acc[i]
 
 
         string += '</%s>' % tagname
@@ -2005,7 +2009,7 @@ def XsamsHeader(HeaderInfo):
 
     if HeaderInfo:
         HeaderInfo = CaselessDict(HeaderInfo)
-        if HeaderInfo.has_key('Truncated'):
+        if 'Truncated' in HeaderInfo:
             if HeaderInfo['Truncated'] != None: # note: allow 0 percent
                 head.append( """
 <!--

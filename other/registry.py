@@ -6,10 +6,8 @@ routines for querying the registry
 
 """
 
-#REL_REG='http://registry.vamdc.eu/registry-11.12/services/RegistryQueryv1_0'
-REL_REG='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
-DEV_REG='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
-REL_REG='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
+#DEV_REG='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
+#REG='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
 
 REGURL=DEV_REG
 REGURL=REL_REG
@@ -21,7 +19,7 @@ WSDL=REGURL+'?wsdl'
 
 # this is a copy of the URL above but with
 # schema locations fixed:
-#WSDL = 'http://tmy.se/t/devreg_wsdl.xml'
+WSDL = 'https://tmy.se/t/reg_wsdl.xml'
 
 from suds.client import Client
 
@@ -51,7 +49,7 @@ def getNodeList():
         except:
             url = None
             
-	nameurls.append({\
+        nameurls.append({\
 			'name':node.title,
     			'url':url,
 			})
