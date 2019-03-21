@@ -93,6 +93,24 @@ def remap_species(datasets):
 
     return species
 
+def add_states(transs, species):
+    nstates = 0
+    for specie in species:
+        subtranss = transs.filter(species=specie)
+        sids = subtranss.values_list('upperstateref', 'lowerstateref')
+        sids = set(item for s in sids for item in s)
+        nstates += len(sids)
+        states = States.objects.filter(pk__in = sids)
+        state_origin = OriginStates.filter(pk__in = sids)
+        nsi_origins = OriginStates(manager = 'nsi_objects').filter(pk__in = sids)
+        origins = state_origin | nsi_origins
+        for s in origins:
+            s.id = s.id_alias()
+            s.aux = True
+        specie.States = states #list(chain(origins, states))
+
+    return species, nstates
+
 def get_species_and_states(transs, addStates = True, filteronatoms = False):
     """
     Returns list of species including all states which occur in the list
@@ -105,10 +123,7 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
     """
 
     # Get list of specie-ids which occur in transitions
-    if filteronatoms:
-        spids = set( transs.values_list('specie_id',flat=True).distinct() )
-    else:
-        spids = transs.values_list('specie_id',flat=True)
+    spids = set( transs.values_list('specie_id',flat=True).distinct() )
 
     # Species object for CDMS includes Atoms AND Molecules. Both can only
     # be distinguished through numberofatoms-field
@@ -136,10 +151,8 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
                 s.aux = True
             # attach states to molecule object
             m.States = list(chain(origins, states))
-            tests = m.States[0]
-            LOG("TEST if XML - Method exists:")
-            LOG(hasattr(tests, 'XML'))
-            LOG(m.States[0].XML())
+ #       molecules, nms = add_states(transs, molecules)
+ #       nstates += nms
 
         for a in atoms:
             states = a.atomstates_set.filter(Q(pk__in= up) | Q(pk__in= low))
@@ -153,85 +166,6 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
         nstates = States.objects.filter(pk__in=chain(up,low)).count()
 
     return atoms,molecules,nspecies,nstates
-
-def get_species_and_states_old(transs, addStates=True, filteronatoms=False):
-    """
-    Returns list of species including all states which occur in the list
-    of transitions.
-    Returns:
-    - Atoms
-    - Molecules
-    - Number of species
-    - Number of states
-    """
-
-    # Get list of specie-ids which occur in transitions
-    if filteronatoms:
-        spids = set( transs.values_list('specie_id',flat=True).distinct() )
-    else:
-        spids = transs.values_list('specie_id',flat=True)
-
-    # Species object for CDMS includes Atoms AND Molecules. Both can only
-    # be distinguished through numberofatoms-field
-    atoms = Species.objects.filter(pk__in=spids, molecule__numberofatoms__exact='Atomic', origin=5, archiveflag=0)
-    molecules = Species.objects.filter(pk__in=spids, origin=5, archiveflag=0).exclude(molecule__numberofatoms__exact='Atomic') #,ncomp__gt=1)
-
-    # Calculate number of species in total
-    nspecies = atoms.count() + molecules.count()
-
-    # Intialize state-counter
-    nstates = 0
-
-    if addStates:
-        # Loop through list of species and attach states
-        for specie in chain( molecules):
-            #dds=Datasets.objects.filter(specie=specie, archiveflag=0, hfsflag=specie.hfs).values_list('id',flat=True)
-            #dds=set(dds)
-
-            # Get distinct list of States which
-            # occur as lower or upper state in transitions
-            subtranss = transs.filter(specie=specie, dataset__archiveflag=0)
-            up=subtranss.values_list('upperstateref',flat=True)
-            lo=subtranss.values_list('lowerstateref',flat=True)
-            sids = set(chain(up,lo))
-            states = States.objects.filter( pk__in = sids)
-            # Get energy origins
-            origin_ids = states.values_list('energyorigin',flat=True).distinct()
-            nsi_origin_ids = NuclearSpinIsomers.objects.filter(pk__in=states.values_list('nsi',flat=True)).values_list('lowestrovibstate',flat=True)
-            # nsi_origin_ids = States.objects.filter(pk__in = sids).values_list('nsioriginid',flat=True).distinct()
-            origin_ids = set(chain(origin_ids,nsi_origin_ids))
-            origins = States.objects.filter(pk__in = origin_ids)
-
-            # Create new ID for 'origin'-states
-            # These states occur twice in the output
-            # species-id is used to make id unique (origin-state could be a state of another specie if v>0)
-            for state in origins:
-                state.id = "%s-origin-%s" % (state.id, specie.id)
-                state.aux = True
-
-            # Attach states to species object            
-            specie.States = chain(origins, states)
-            # Add number of attached states to state-counter
-            nstates += states.count()
-
-                
-        for specie in chain(atoms ):
-            #dds=Datasets.objects.filter(specie=specie, archiveflag=0, hfsflag=specie.hfs).values_list('id',flat=True)
-            #dds=set(dds)
-            # Get distinct list of States which
-            # occur as lower or upper state in transitions
-            subtranss = transs.filter(specie=specie, dataset__archiveflag=0)
-            up=subtranss.values_list('upperstateref',flat=True)
-            lo=subtranss.values_list('lowerstateref',flat=True)
-            sids = set(chain(up,lo))
-            # Attach states to species object
-            specie.States = AtomStates.objects.filter( pk__in = sids)
-            # Add number of attached states to state-counter
-            nstates += specie.States.count()
-
-                
-    return atoms,molecules,nspecies,nstates
-
 
 def get_sources(atoms, molecules, methods = []):
     """
