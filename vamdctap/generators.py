@@ -101,6 +101,14 @@ def GetValue(returnable_key, **kwargs):
         # No dot means it is a static string!
         return name
 
+    if name[:5] == 'eval(':
+        objname, obj = kwargs.popitem()
+        exec('%s = obj' % objname)
+        try:
+            value = eval(name)
+        except Exception, e:
+            value = name
+        return value
     # strip the prefix
     attribs = name.split('.')[1:]
     attribs.reverse() # to later pop() from the front
@@ -1066,6 +1074,7 @@ def XsamsMSBuild(MoleculeState):
     """
     Generator for MolecularState tag
     """
+    log.debug('Create MoleculeState')
     G = lambda name: GetValue(name, MoleculeState=MoleculeState)
     yield makePrimaryType("MolecularState", "MoleculeState", G,
             extraAttr={"stateID":'S%s-%s' % (G('NodeID'), G('MoleculeStateID')),
@@ -1125,11 +1134,20 @@ def XsamsMSBuild(MoleculeState):
             yield "</Parameters>"
     yield '  </MolecularStateCharacterisation>\n'
     yield makeOptionalTag("Parity", "MoleculeStateParity", G)
+#    cont, ret = checkXML(G("MoleculeStateQuantumNumbers"))
+    cont, ret = checkXML(MoleculeState)
 
-    cont, ret = checkXML(G("MoleculeStateQuantumNumbers"))
+
+#    log.debug(G("MoleculeStateQuantumNumbers"))
+#    log.debug(type(G("MoleculeStateQuantumNumbers")))
+#    log.debug(hasattr(G("MoleculeStateQuantumNumbers"), 'XML'))
+#    log.debug(hasattr(MoleculeState, 'XML'))
+#    log.debug(MoleculeState.XML())
     if cont:
+#        log.debug("CONT")
         yield ret
     else:
+#        log.debug("NOT CONT")
         yield makeCaseQNs(G)
 
     # commented out at the moment, need to confer on names to use, and rework makeCaseQNs(). /SR
