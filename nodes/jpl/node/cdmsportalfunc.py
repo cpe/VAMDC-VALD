@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import sys
-from models import *
+from node.models import *
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from lxml import etree as e
@@ -177,13 +177,16 @@ def check_query(postvars):
         #tapxsams += "(" + " OR ".join([" InchiKey = '" + ikey + "'" for ikey in inchikeylist]) + ")"
 
         if len(id_list)>0:
-            spec_array.append( " OR ".join([" SpeciesID = %s " % ikey  for ikey in id_list]) )
+            # spec_array.append( " OR ".join([" SpeciesID = %s " % ikey  for ikey in id_list]) )
+            spec_array.append( "SpeciesID in (%s)" % (",".join([" %s " % ikey for ikey in id_list])) )
             
         if len(inchikeys)>0:
-            spec_array.append( " OR ".join([" InchiKey = '%s' " % ikey  for ikey in inchikeys]) )
+            #spec_array.append( " OR ".join([" InchiKey = '%s' " % ikey  for ikey in inchikeys]) )
+            spec_array.append( "InchiKey in (%s)" % (",".join([" '%s' " % ikey for ikey in inchikeys])) )
 
         if len(molecules)>0:
-            spec_array.append( " OR ".join([" MoleculeStoichiometricFormula = '%s' " % ikey  for ikey in molecules]) )
+            #spec_array.append( " OR ".join([" MoleculeStoichiometricFormula = '%s' " % ikey  for ikey in molecules]) )
+            spec_array.append( "MoleculeStoichiometricFormula in (%s)" % (",".join([" '%s' " % ikey for ikey in molecules])) )
 
         
         tapxsams += "(" + " OR ".join(spec_array) + ")"
@@ -625,19 +628,24 @@ def doHeadRequest(url, timeout = 20):
     A list of 'vamdc' - statistic objects is returned
     """
     from urlparse import urlparse
-    from httplib import HTTPConnection
+    from httplib import HTTPConnection, HTTPSConnection
     
     urlobj = urlparse(url)
 
     try:
-        conn = HTTPConnection(urlobj.netloc, timeout = timeout)
+        if urlobj.scheme == 'https':
+            conn = HTTPSConnection(urlobj.netloc, timeout = timeout)
+        else:
+            conn = HTTPConnection(urlobj.netloc, timeout = timeout)
         conn.request("HEAD", urlobj.path+"?"+urlobj.query)
         res = conn.getresponse()
-    except:
+    except Exception as e:
         # error handling has to be included
+        print("Fehler in Head - Request: %s" % url )
+        print(e)
         vamdccounts = [] #[('error', 'no response')]
         return vamdccounts
-        
+
     if res.status == 200:
         vamdccounts = [item for item in res.getheaders() if item[0][0:5]=='vamdc']
         content = [item for item in res.getheaders() if item[0][0:7]=='content']
@@ -775,3 +783,30 @@ def getspecies(url):
 
     html += "</tbody></table>"
     return  html, data
+
+
+def listRecommendedEntries():
+    """
+    Lists all recommended entries (JPL/CDMS)
+    """
+    s = Species.objects.filter(recommendationflag = 0)
+    for species in s:
+        if species.origin == 5:
+            yield "XCDMS-%s\n" % species.id
+        elif species.origin == 0:
+            yield "XJPL-%s\n" % species.id
+
+def isRecommended(id):
+    """
+    Checks if an entry is recommended.
+
+    :param id: Species-id
+    :type id: integer
+
+    returns Boolean
+    """
+    s = Species.objects.get(id=id)
+    if s.recommendationflag == 0:
+        return True
+    else:
+        return False

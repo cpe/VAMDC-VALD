@@ -628,19 +628,23 @@ def doHeadRequest(url, timeout = 20):
     A list of 'vamdc' - statistic objects is returned
     """
     from urlparse import urlparse
-    from httplib import HTTPConnection
+    from httplib import HTTPConnection, HTTPSConnection
     
     urlobj = urlparse(url)
-
     try:
-        conn = HTTPConnection(urlobj.netloc, timeout = timeout)
+        if urlobj.scheme == 'https':
+            conn = HTTPSConnection(urlobj.netloc, timeout = timeout)
+        else:
+            conn = HTTPConnection(urlobj.netloc, timeout = timeout)
         conn.request("HEAD", urlobj.path+"?"+urlobj.query)
         res = conn.getresponse()
-    except:
+    except Exception as e:
         # error handling has to be included
+        print("Fehler in Head - Request: %s" % url )
+        print(e)
         vamdccounts = [] #[('error', 'no response')]
         return vamdccounts
-        
+
     if res.status == 200:
         vamdccounts = [item for item in res.getheaders() if item[0][0:5]=='vamdc']
         content = [item for item in res.getheaders() if item[0][0:7]=='content']
