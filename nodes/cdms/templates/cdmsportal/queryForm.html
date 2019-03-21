@@ -165,9 +165,9 @@
       <INPUT TYPE="HIDDEN" NAME="col_speciesid" id="col_speciesid" VALUE="">
 
       <div class="type-button float_right radexsubmit">
-          <INPUT id="button2" TYPE="button" NAME="T_SEARCH" onclick='ajaxDownload("ajaxQuery","http://cdms.ph1.uni-koeln.de/cdms/tap/sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY=SELECT+ALL+WHERE+%28+InchiKey+=+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27+%29&ORDERBY=frequency","http://cdms.ph1.uni-koeln.de/cdms/tap/");' VALUE="Download" >
+          <INPUT id="button2" TYPE="button" NAME="T_SEARCH" onclick='ajaxDownload("ajaxQuery","/cdms/tap/sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY=SELECT+ALL+WHERE+%28+InchiKey+=+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27+%29&ORDERBY=frequency","/cdms/tap/");' VALUE="Download" >
 
-          <INPUT id="button1" TYPE="button" NAME="T_SEARCH" onclick='$("#control").hide();ajaxQuery("ajaxQuery","http://cdms.ph1.uni-koeln.de/cdms/tap/sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY=SELECT+ALL+WHERE+%28+InchiKey+=+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27+%29&ORDERBY=frequency","http://cdms.ph1.uni-koeln.de/cdms/tap/");$("#result").show();docShowSubpage("queryresult");' VALUE="QUERY" >
+          <INPUT id="button1" TYPE="button" NAME="T_SEARCH" onclick='$("#control").hide();ajaxQuery("ajaxQuery","/cdms/tap/sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY=SELECT+ALL+WHERE+%28+InchiKey+=+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27+%29&ORDERBY=frequency","/cdms/tap/");$("#result").show();docShowSubpage("queryresult");' VALUE="QUERY" >
       </div>
    </fieldset>
 
@@ -217,7 +217,7 @@
         </li>
 
         <li id='nodeCDMS' class='vamdcnode' style='width:98%;border-width:1px;border-style:solid;border-color:black;padding:0.5em;margin:5px;background-color:#fafaff'>
-          <div class='nodeurl' style='display:none' id='CDMS'>http://cdms.ph1.uni-koeln.de/cdms/tap/</div>
+          <div class='nodeurl' style='display:none' id='CDMS'>https://cdms.astro.uni-koeln.de/cdms/tap/</div>
           <div class='url' style='display:none'></div>
           <div class='' style=''>
             <div class='nodename float_left' style='font-weight:bold;width:15em;background-color2:grey'>CDMS</div>                                                         
@@ -232,7 +232,7 @@
           <div class='species' style='clear:both'></div> 
         </li>
         <li id='nodeJPL' class='vamdcnode' style='width:98%;border-width:1px;border-style:solid;border-color:black;padding:0.5em;margin:5px;background-color:#fafaff'>
-          <div class='nodeurl' style='display:none' id='JPL'>http://cdms.ph1.uni-koeln.de/jpl/tap/</div>
+          <div class='nodeurl' style='display:none' id='JPL'>https://cdms.astro.uni-koeln.de/jpl/tap/</div>
           <div class='url' style='display:none'></div>
           <div class='' style=''>
             <div class='nodename float_left' style='font-weight:bold;width:15em;background-color2:grey'>JPL</div>       

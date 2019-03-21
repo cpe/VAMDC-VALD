@@ -418,7 +418,7 @@ function orderByState() {
 function ajaxQuery(func,urlstr, nodeurl) {
 
   var dataToSend =  $("form").serializeArray();
-  $("#queryresult").html('<center><img src="http://cdms.ph1.uni-koeln.de/vamdcdev/nodes/cdms/templates/cdmsportal/loading9.gif" alt="loading"></center>');
+  $("#queryresult").html('<center><img src="/vamdcdev/nodes/cdms/templates/cdmsportal/loading9.gif" alt="loading"></center>');
 
   if (typeof func=="undefined")
     var func="";

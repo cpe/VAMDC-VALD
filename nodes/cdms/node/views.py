@@ -25,7 +25,7 @@ FILENAME_MERGERADEX = settings.XSLT_DIR + 'speciesmergerRadex_1.0_v0.3.xslt'
 class QUERY(object ):
     """
     """
-#    baseurl = "http://cdms.ph1.uni-koeln.de:8090/DjCDMS/tap/sync?REQUEST=doQuery&LANG=VSS1&FORMAT=XSAMS&QUERY="
+#    baseurl = "https://cdms.astro.uni-koeln.de:8090/DjCDMS/tap/sync?REQUEST=doQuery&LANG=VSS1&FORMAT=XSAMS&QUERY="
      #sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY="
     requeststring = "sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&"
 
