@@ -735,7 +735,10 @@ class RadiativeTransitions( Model):
                            db_column='LowerStateRef')
 
      def line_strength(self):
-         return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
+         if self.intensity is not None:
+             return format(np.power(10.0, self.intensity) / (2.99792458e18), '.5g')
+         else:
+             return 0.0
      #frequencyArray        
 
      def __unicode__(self):
