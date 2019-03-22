@@ -1,5 +1,12 @@
 import re
 
+# python 3 compatibility
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
 translation_dict = {'\\Sigma':'&Sigma;',
                     '\\Delta':'&Delta;',
                     '\\Pi':'&Pi;',

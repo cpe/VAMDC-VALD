@@ -4,14 +4,14 @@
 # bound to certain URLs in urls.py
 import sys
 from django.template import RequestContext
-from django.shortcuts import render_to_response,get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 import json as simplejson
 
 from django.conf import settings
 
-from cdmsportalfunc import *
-from forms import *
+from .cdmsportalfunc import *
+from .forms import *
 import os
 from django.views.decorators.cache import cache_page
 #from django.views.decorators.csrf import csrf_protect
@@ -37,7 +37,7 @@ class QUERY(object ):
         
         try:
             self.data = data # dict(data)
-        except Exception,e:
+        except Exception as e:
             self.isvalid = False
             self.errormsg = 'Could not read argument dict: %s'%e
 
@@ -127,23 +127,17 @@ class QUERY(object ):
             self.col_speciesid = self.data.get('col_speciesid','')
 
 def index(request):
-    c=RequestContext(request,{})
-#    return render_to_response('tap/index.html', c)
-    return render_to_response('cdmsportal/home.html', c)
-
+    return render(request, 'cdmsportal/home.html')
 
 def contact(request):
-    c=RequestContext(request,{})
-    return render_to_response('cdmsportal/contact.html', c)
+    return render(request, 'cdmsportal/contact.html')
 
 @cache_page(60 * 15)
 def general(request):
-    c=RequestContext(request,{})
-    return render_to_response('cdmsportal/general.html', c)
+    return render(request, 'cdmsportal/general.html')
 
 def help(request):
-    c=RequestContext(request,{})
-    return render_to_response('cdmsportal/help.html', c)
+    return render(request, 'cdmsportal/help.html')
 
         
 def queryPage(request):
@@ -160,16 +154,16 @@ def queryPage(request):
     isotopolog_list = Species.objects.filter(inchikey__in=inchikey_list)
     molecule_list = Species.objects.filter(molecule__stoichiometricformula__in=stoichio_list)
             
-    c=RequestContext(request,{"postvar" : postvars,
-                              "speciesid_list": id_list,
-                              "inchikey_list" : inchikey_list,
-                              "stoichio_list": stoichio_list,
-                              "species_list" : species_list,
-                              "isotopolog_list" : isotopolog_list,
-                              "molecule_list" : molecule_list,
-                              })
+    context =  {"postvar" : postvars,
+                "speciesid_list": id_list,
+                "inchikey_list" : inchikey_list,
+                "stoichio_list": stoichio_list,
+                "species_list" : species_list,
+                "isotopolog_list" : isotopolog_list,
+                "molecule_list" : molecule_list,
+                }
     
-    return render_to_response('cdmsportal/queryForm.html', c)
+    return render(request, 'cdmsportal/queryForm.html', context)
 
 
 def query_form(request):
@@ -181,12 +175,12 @@ def query_form(request):
     id_list = request.POST.getlist('speciesIDs')
     inchikey_list = request.POST.getlist('inchikey')
     stoichio_list = request.POST.getlist('molecule')
-    c=RequestContext(request,{"action" : "queryPage",
-                              "speciesid_list": id_list,
-                              "inchikey_list" : inchikey_list,
-                              "stoichio_list": stoichio_list,
-                              })
-    return render_to_response('cdmsportal/querySpeciesAjax.html', c)
+    context = {"action" : "queryPage",
+               "speciesid_list": id_list,
+               "inchikey_list" : inchikey_list,
+               "stoichio_list": stoichio_list,
+              }
+    return render(request, 'cdmsportal/querySpeciesAjax.html', context)
 
 
 def tools(request):
@@ -206,11 +200,8 @@ def tools(request):
     else:
         form = XsamsConversionForm()
 
-    #return render_to_response('upload.html', {'form': form})
-
-    
-    c=RequestContext(request,{'form':form})
-    return render_to_response('cdmsportal/tools.html', c)
+    context = {'form':form}
+    return render(request, 'cdmsportal/tools.html', context)
 
 
 def selectSpecie(request):
@@ -218,17 +209,16 @@ def selectSpecie(request):
     Create the species selection - page from the species (model) stored in the database
     """
     species_list = get_species_list()
-    c=RequestContext(request,{"action" : "catalog", "species_list" : species_list})
-#    return render_to_response('cdmsportal/selectSpeciesAjax.html', c)
-    return render_to_response('cdmsportal/selectSpecies.html', c)
+    context = {"action" : "catalog", "species_list" : species_list}
+    return render(request, 'cdmsportal/selectSpecies.html', context)
 
 def selectSpecie2(request):
     """
     Create the species selection - page from the species (model) stored in the database
     """
     #species_list = get_species_list()
-    c=RequestContext(request,{"action" : "catalog"})
-    return render_to_response('cdmsportal/selectSpeciesAjax.html', c)
+    context = {"action" : "catalog"}
+    return render(request, 'cdmsportal/selectSpeciesAjax.html', context)
 
 
 
@@ -244,30 +234,33 @@ def html_list(request, content='species'):
     """
     if content == 'molecules':
         molecules_list = get_molecules_list()
-        c=RequestContext(request,{"action" : "catalog",
-                                  "species_list" : [],
-                                  "molecules_list" : molecules_list,
-                                  "isotopolog_list" : [],})
+        context = {"action" : "catalog",
+                   "species_list" : [],
+                   "molecules_list" : molecules_list,
+                   "isotopolog_list" : [],
+                  }
         
-        return render_to_response('cdmsportal/species_table.html', c)
+        return render(request, 'cdmsportal/species_table.html', context)
 
     elif content == 'isotopologs':
         isotopolog_list = get_isotopologs_list()
-        c=RequestContext(request,{"action" : "catalog",
-                                  "species_list" : [],
-                                  "molecules_list" : [],
-                                  "isotopolog_list" : isotopolog_list,})
+        context = {"action" : "catalog",
+                   "species_list" : [],
+                   "molecules_list" : [],
+                   "isotopolog_list" : isotopolog_list,
+                  }
 
-        return render_to_response('cdmsportal/species_table.html', c)
+        return render(request, 'cdmsportal/species_table.html', context)
 
     else:
         species_list = get_species_list()
-        c=RequestContext(request,{"action" : "catalog",
-                                  "species_list" : species_list,
-                                  "molecules_list" : [],
-                                  "isotopolog_list" : [],})
+        context = {"action" : "catalog",
+                   "species_list" : species_list,
+                   "molecules_list" : [],
+                   "isotopolog_list" : [],
+                  }
     
-    return render_to_response('cdmsportal/species_table.html', c)
+    return render(request, 'cdmsportal/species_table.html', context)
 
 @cache_page(60*15)
 def json_list(request, content='species'):
@@ -287,6 +280,7 @@ def json_list(request, content='species'):
     
     response_dict={}
     species_list=[]
+    error = ''
     for specie in get_species_list(database = db):
         try:
             s = {'id':specie.id,
@@ -306,10 +300,12 @@ def json_list(request, content='species'):
                  'version':specie.version,
                  'dateofentry':str(specie.dateofentry),
                  }
-        except:
-            pass
-        species_list.append(s)
-    response_dict.update({'species' : species_list,'database' : db})
+            species_list.append(s) 
+        except Exception as e:
+            print("Error: %s" % e)
+            error = e
+            
+    response_dict.update({'species' : species_list,'database' : db, 'error': error})
        
     return HttpResponse(simplejson.dumps(response_dict), content_type='application/json')
 
@@ -352,16 +348,17 @@ def catalog(request, id=None):
     # query files from database
     files = getFiles4specie(id)
         
-    c=RequestContext(request,{"specie" : specie,
-                              "sources" : sources,
-                              "datasets" : datasets,
-                              "files" : files,
-                              "rotationalconstants" : rotationalConstants,
-                              "dipolemoments" : dipoleMoments,
-                              "pfhtml" : pfhtml,
-                              "otherparameters" : otherParameters  })
+    context = {"specie" : specie,
+               "sources" : sources,
+               "datasets" : datasets,
+               "files" : files,
+               "rotationalconstants" : rotationalConstants,
+               "dipolemoments" : dipoleMoments,
+               "pfhtml" : pfhtml,
+               "otherparameters" : otherParameters  
+              }
     
-    return render_to_response('cdmsportal/showDocumentation.html', c)
+    return render(request, 'cdmsportal/showDocumentation.html', context)
 
 
 
@@ -380,22 +377,22 @@ def showResults(request):
         readyfunc='ajaxQueryNodeContent();'
     
     try:
-        c=RequestContext(request,{"postvars": postvars, "result" : result, "readyfunc":readyfunc})
-    except UnicodeError, e:
-        c=RequestContext(request,{"postvars": postvars, "result" : result.decode('utf-8')})
-        return render_to_response('cdmsportal/showResults2.html', c)
+        context = {"postvars": postvars, "result" : result, "readyfunc":readyfunc}
+    except UnicodeError as e:
+        context = {"postvars": postvars, "result" : result.decode('utf-8')}
+        return render(request, 'cdmsportal/showResults2.html', context)
 
-    except Exception, err:
-        c=RequestContext(request,{"postvars": postvars, "result" : err})
+    except Exception as err:
+        context = {"postvars": postvars, "result" : err}
 
     try:
-        return render_to_response('cdmsportal/showResults2.html', c)
-    except UnicodeError, e:
-        c=RequestContext(request,{"postvars": postvars, "result" : result.decode('utf-8')})
-        return render_to_response('cdmsportal/showResults2.html', c)
-    except Exception, err:
-        c=RequestContext(request,{"postvars": postvars, "result" : err})
-        return render_to_response('cdmsportal/showResults2.html', c)
+        return render(request, 'cdmsportal/showResults2.html', context)
+    except UnicodeError as e:
+        context = {"postvars": postvars, "result" : result.decode('utf-8')}
+        return render(request, 'cdmsportal/showResults2.html', context)
+    except Exception as err:
+        context = {"postvars": postvars, "result" : err}
+        return render(request, 'cdmsportal/showResults2.html', context)
 
 
 
@@ -443,7 +440,7 @@ def ajaxRequest(request):
                     elif postvars.format=='png':
                         htmlcode = "<img class='full' width='100%' src="+postvars.url+" alt='Stick Spectrum'>"
                     else:
-                        htmlcode = "<pre>" + str(geturl(postvars.url)) + "</pre>"
+                        htmlcode = "<pre>" + str(geturl(postvars.url).decode('utf-8')) + "</pre>"
                 else:
                     htmlcode = "<p> Invalid request </p>"
 
@@ -509,8 +506,8 @@ def specieslist(request):
         return HttpResponseRedirect(settings.BASE_URL+settings.PORTAL_URLPATH +'login/?next=%s' % request.path)
 
     species_list = get_species_list()
-    c=RequestContext(request,{"action" : "catalog", "species_list" : species_list})
-    return render_to_response('cdmsadmin/selectSpecies.html', c)
+    context = {"action" : "catalog", "species_list" : species_list}
+    return render(request, 'cdmsadmin/selectSpecies.html', context)
 
 def queryspecies(request, baseurl = settings.BASE_URL + settings.TAP_URLPATH):
     
@@ -523,8 +520,8 @@ def queryspecies(request, baseurl = settings.BASE_URL + settings.TAP_URLPATH):
     except:
         result = "<p> Invalid request </p>"
     
-    c=RequestContext(request,{"result" : result})
-    return render_to_response('cdmsportal/showResults.html', c)
+    context = {"result" : result}
+    return render(request, 'cdmsportal/showResults.html', context)
 
 
 def getfile(request,id):

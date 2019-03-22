@@ -1,13 +1,15 @@
 import os
 import sys
+import django
 
-#sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.append('/srv/cdms/v1_0/NodeSoftware/')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'nodes.cdms.settings'
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nodes.cdms.settings')
+#sys.path.append('/srv/django/VAMDCNodeSoftware/')
+#os.environ['DJANGO_SETTINGS_MODULE'] = 'nodes.cdms.settings'
 
-#import django.core.handlers.wsgi
-#application = django.core.handlers.wsgi.WSGIHandler()
-#
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+
+#from django.core.wsgi import get_wsgi_application
+#application = get_wsgi_application()
+
+from django.core.handlers.wsgi import WSGIHandler
+django.setup(set_prefix = False)
+application = WSGIHandler()

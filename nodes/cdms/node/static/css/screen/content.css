@@ -236,13 +236,24 @@
   * @section content-misc
   */
 
-  .entrySelected { background:#99CCFF; color:#040;  }
+  .entrySelected { background:#99CCFF; color:#000;  }
   .entryTableHead { line-height:1.5em; padding:1.5em 0; color:#000; border-collapse:collapse; margin-bottom:1.0em; border-top:2px #888 solid; border-bottom:2px #888 solid; }
   .speciesRow { border-top:2px solid #888; }
 
+  .selectMolsHead li {background-color:#ccc}
+  .selectMolsHead li * a {background-color:white}
+  .selectMolsHead .entrySelected * a { background:#9cf;  }
+  .selectMolsHead .entrySelected * a sup {color:white}
+
+  .selectMolsHead tr:hover,
   .selectMolsHead li a:focus, 
   .selectMolsHead li a:hover,
-  .selectMolsHead li a:active  { background-color:#39f; color:#fff; outline: 0 none; }
+  .selectMolsHead li a:active  { background-color:#39f; color:#fff; outline: 0 none;}
+  .selectMolsHead tr:hover td { background:#39f; }
+
+  .selectMolsHead tr td.doc {}
+  .selectMolsHead tr td.doc:hover { }
+
 
   .selectMolsHead .entrySelected a:focus,
   .selectMolsHead .entrySelected a:hover,
@@ -263,6 +274,58 @@
     color:#333;
     display:none;
   }
+
+
+.circlink{
+width:20px;
+height:20px;
+display:block;
+border-radius:30px;
+-moz-border-radius:50px;
+-webkit-border-radius:50px;
+
+-webkit-box-shadow: 0 5px 3px rgba(0, 0, 0, 0.2);
+ -moz-box-shadow: 0 5px 3px rgba(0, 0, 0, 0.2);
+ box-shadow: 0 5px 3px rgba(0, 0, 0, 0.2);
+
+-khtml-border-radius:50px;
+font-size:18px;
+color:grey;
+line-height:20px;
+text-decoration:none;
+text-align:center;
+background:grey} 
+
+.circlink:hover{
+color:grey;
+text-decoration:none;
+background:#fff}
+
+.circlink sup {color:#9cf}
+a.circlink:active sup {color:white}
+
+.state sup, .state sub, .state {color:#444}
+
+
+.rotate {
+
+/* Safari */
+-webkit-transform: rotate(-90deg);
+
+/* Firefox */
+-moz-transform: rotate(-90deg);
+
+/* IE */
+-ms-transform: rotate(-90deg);
+
+/* Opera */
+-o-transform: rotate(-90deg);
+
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
+}
+
 
 /*  .yform .legend { background:#D8D8D8; border:1px solid #aaaaaa; padding:0.0em 0.5em;display:block; font-size:130%;margin:-0.45em; margin-bottom:1em; font-variant:small-caps;
 */

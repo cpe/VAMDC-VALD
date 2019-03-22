@@ -2,7 +2,7 @@ from node.models import *
 from django.forms import ModelForm
 from django.forms.formsets import BaseFormSet
 from django.forms.models import modelformset_factory
-from cdmsportalfunc import *
+from .cdmsportalfunc import *
 from django.core.exceptions import ValidationError
 from django import forms
 
@@ -45,14 +45,14 @@ class XsamsConversionForm(forms.Form):
 
         if inurl:
             try: data = urlopen(inurl)
-            except Exception,err:
+            except Exception as err:
                 raise ValidationError('Could not open given URL: %s'%err)
         elif infile: data = infile
         else:
             raise ValidationError('Give either input file or URL!')
 
         try: self.cleaned_data['result'] = applyStylesheet2File(data)
-        except Exception,err:
+        except Exception as err:
             raise ValidationError('Could not transform XML file: %s'%err)
 
 #        try: xml=e.parse(data)

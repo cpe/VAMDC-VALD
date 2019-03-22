@@ -25,7 +25,7 @@
     <div id="col3_content" class="clearfix">
 
 <form class='yform' enctype="multipart/form-data"  method="post">
-
+{% csrf_token %}
   <fieldset class='subpage' id='page_xsams_converter' style='display:none'>
     <div class='legend'>Convert XSAMS output to other data formats</div>
     {% if form.non_field_errors|length > 0 %}

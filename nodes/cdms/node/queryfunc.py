@@ -8,7 +8,7 @@ import datetime
 def LOG(s):
     if settings.DEBUG: print >> sys.stderr, s
 
-from dictionaries import *
+from node.dictionaries import *
 from itertools import chain
 from copy import deepcopy
 
