@@ -21,23 +21,23 @@
       </div>         
       <div class="type-text">
         <label for="eTagFilter">Tag</label>
-        <input id="eTagFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag"> 
+        <input id="eTagFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag" placeholder="e.g. 18501"> 
       </div>
       <div class="type-text">
         <label for="molNameFilter">Molecule</label>
-        <input id="molNameFilter" onkeyup="applySpeciesFilter()" onmouseenter="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag"> 
+        <input id="molNameFilter" onkeyup="applySpeciesFilter()" onmouseenter="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag" placeholder="Hill notation, e.g. ^H3N$"> 
       </div>
       <div class="type-text">
         <label for="molTrivNameFilter">Trivial&nbsp;Name</label>
-        <input id="molTrivNameFilter" onkeyup="applySpeciesFilter()"  onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag"> 
+        <input id="molTrivNameFilter" onkeyup="applySpeciesFilter()"  onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag" placeholder="e.g. Ammonia"> 
       </div>
       <div class="type-text">
         <label for="isoFilter">Isotopolog</label>
-        <input id="isoFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag"> 
+        <input id="isoFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag" placeholder="Stoichiom. formula, e.g. ^CH3OH$"> 
       </div>
       <div class="type-text">
         <label for="stateFilter">State</label>
-        <input id="stateFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag"> 
+        <input id="stateFilter" onkeyup="applySpeciesFilter()" onblur="applySpeciesFilter()" onkeyPress="return disableEnterKey(event)" type="text" name="filterTag" placeholder="e.g. v=0"> 
       </div>
 	    
       {% block moleculesgroupxxx %}
@@ -73,7 +73,6 @@
                         ajaxGetSpeciesList(5);
                     }
                 });
-                applySpeciesFilter();
                 $('#select_db').change(function() {
                     if ($(this).is(':checked')) {
                         ajaxGetSpeciesList(-1);
@@ -81,7 +80,6 @@
                     else {
                         ajaxGetSpeciesList(5);
                     }
-                    applySpeciesFilter();
                 });
 </script>
 
