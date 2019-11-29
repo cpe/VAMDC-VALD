@@ -132,7 +132,7 @@ class TAPQUERY(object):
         self.where = self.parsedSQL.where
         self.columns = self.parsedSQL.columns[0]
         print(self.columns)
-        if self.columns[0] not in ('*', 'ALL'):
+        if not('*' in self.columns or 'ALL' in self.columns):
             for r in self.columns:
                 print(r)
                 r = r.lower()
