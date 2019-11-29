@@ -305,7 +305,7 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
         string += makeSourceRefs(refs[i])
         string += '<Value units="%s">%s</Value>' % (unit[i] or 'unitless', val)
         string += makeEvaluation( keyword, G, j=i)
-
+        string += makeAccuracy(keyword, G, j=i)
         # This is broken, makes empty <Accuracy/>.
         # TODO: Proper solution is to add j-parameter to makeAccuracy(), similar to makeEvalution()
         #if acc[i] is not None:
@@ -318,7 +318,7 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
 # an alias for compatibility reasons
 makeNamedDataType = makeRepeatedDataType
 
-def makeAccuracy(keyword, G):
+def makeAccuracy(keyword, G, j=None):
     """
     build the elements for accuracy that belong
     to DataType.
@@ -326,11 +326,28 @@ def makeAccuracy(keyword, G):
     acc = G(keyword + 'Accuracy')
     if acc is None:
         return ''
-    acc_list = makeiter(acc)
-    nacc = len(acc_list)
-    acc_conf = makeiter( G(keyword + 'AccuracyConfidence'), nacc )
-    acc_rel = makeiter( G(keyword + 'AccuracyRelative'), nacc )
-    acc_typ = makeiter( G(keyword + 'AccuracyType'), nacc )
+    if j is not None:
+        acc = acc[j]
+        acc_list = makeiter(acc)
+        nacc = len(acc_list)
+        try:
+            acc_conf = makeiter( G(keyword + 'AccuracyConfidence')[j], nacc )
+        except IndexError:
+            acc_conf = makeiter(None, nacc)
+        try:
+            acc_rel = makeiter( G(keyword + 'AccuracyRelative')[j], nacc )
+        except IndexError:
+            acc_rel = makeiter(None, nacc)
+        try:
+            acc_typ = makeiter( G(keyword + 'AccuracyType')[j], nacc )
+        except IndexError:
+            acc_typ = makeiter(None, nacc)
+    else:
+        acc_list = makeiter(acc)
+        nacc = len(acc_list)
+        acc_conf = makeiter( G(keyword + 'AccuracyConfidence'), nacc )
+        acc_rel = makeiter( G(keyword + 'AccuracyRelative'), nacc )
+        acc_typ = makeiter( G(keyword + 'AccuracyType'), nacc )
 
     result = []
     for i,ac in enumerate( acc_list ):
