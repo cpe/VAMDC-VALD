@@ -1,35 +1,26 @@
-#from django.conf.urls.defaults import *
-from django.conf.urls import patterns, url, include
-from django.conf import settings
+"""foo URL Configuration
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.11/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.conf.urls import url, include
+    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import url, include
+from django.contrib import admin
 
-# Uncomment the next two lines to enable the admin:
-#from django.contrib import admin
-#admin.autodiscover()
+urlpatterns =  [
+    url(r'^tap/', include('vamdctap.urls')),
+    url(r'^portal/', include('nodes.jpl.node.urls')),
+    # Uncomment this line to include mycdmsadmin if installed
+    # url(r'^mycdmsadmin/', include('nodes.cdms.mycdmsadmin.urls')),
+   ]
 
-urlpatterns = patterns('',
-
-    # Uncomment the next line to enable the admin:
-    #(r'^admin/', include(admin.site.urls)),
-    #(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    (r'^tap/', include('vamdctap.urls')),
-#    (r'^cdms/', include('cdms.urls')),
-    (r'^portal/', include('nodes.jpl.node.urls')),
-#    (r'^cdms/static', include('nodes.cdms.node.urls')),
-
-# Uncomment this line to include mycdmsadmin if installed
-#    (r'^mycdmsadmin/', include('nodes.jpl.mycdmsadmin.urls')),
-)
-
-if settings.SERVE_STATIC:
-    import django.views.static
-    urlpatterns += patterns('',
-                    (r'^jpl/static/(?P<path>.*)$',
-                    django.views.static.serve,
-                    {'document_root': settings.BASE_PATH+'/nodes/jpl/static'}),
-# Uncomment next three lines to include mycdmsadmin if installed
-#                    (r'mycdmsadmin/static/(?P<path>.*)$',
-#                    django.views.static.serve,
-#                    {'document_root': settings.BASE_PATH+'/nodes/cdms/mycdmsadmin/static'}),                    
-                    )
-
+handler500 = 'vamdctap.views.tapServerError'
+handler404 = 'vamdctap.views.tapNotFoundError'

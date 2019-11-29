@@ -5,7 +5,8 @@ from node.models import *
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from lxml import etree as e
- 
+from urllib.request import urlopen
+
 def get_species_list(spids = None, database = 5):
     """
     """
@@ -400,17 +401,16 @@ def geturl(url, timeout=None):
     {% geturl object.urlfield 1 %} 
     """
     import socket
-    from urllib2 import urlopen
     socket_default_timeout = socket.getdefaulttimeout()
     if timeout is not None:
         try:
             socket_timeout = float(timeout)
         except ValueError:
-            raise template.TemplateSyntaxError, "timeout argument of geturl tag, if provided, must be convertible to a float"
+            raise template.TemplateSyntaxError( "timeout argument of geturl tag, if provided, must be convertible to a float")
         try:
             socket.setdefaulttimeout(socket_timeout)
         except ValueError:
-            raise template.TemplateSyntaxError, "timeout argument of geturl tag, if provided, cannot be less than zero"
+            raise template.TemplateSyntaxError( "timeout argument of geturl tag, if provided, cannot be less than zero")
     try:
         try: 
             content = urlopen(url).read()
@@ -432,56 +432,50 @@ def applyRadex(inurl, xsl = settings.XSLT_DIR + 'speciesmergerRadex_1.0_v1.0.xsl
     else:
         xsl=e.XSLT(e.parse(open(settings.XSLT_DIR + 'speciesmergerRadex_1.0_v1.0.xslt')))
 
-    from urllib2 import urlopen
-
-
     # download and save first query-result
     try: data = urlopen(inurl)
 
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not open given URL %s: %s'%(inurl,err))
 
     # Save XML-File to temporary directory
     filename = settings.TMPDIR+"/xsams_download.xsams"
 
-    for row in data.info().headers:
-      p = row.find("filename=")
-      if p>-1:
-        filename = settings.TMPDIR+"/"+row[p+9:].rstrip()
-        
-    local_file = open(filename, "w")
-    local_file.write(data.read())
-    local_file.close()
+    # Save XML-File to temporary directory
+    try:
+        filename = settings.TMPDIR + "/" + data.getheader('Content-Disposition').split('filename=')[1]
+    except:
+        filename = settings.TMPDIR+"/xsams_download.xsams"
+
+    with open(filename, "wb") as w:
+        w.write(data.read())
 
     try: xml=e.parse(filename)
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not parse XML file: %s'%err)
 
     if inurl2:
         try: datacol = urlopen(inurl2)
 
-        except Exception,err:
+        except Exception as err:
             raise ValidationError('Could not open given URL: %s'%err)
 
         # Save XML-File to temporary directory
-        filename2 = settings.TMPDIR+"/xsams_col_download.xsams"
+        try:
+            filename2 = settings.TMPDIR + "/" + datacol.getheader('Content-Disposition').split('filename=')[1]
+        except:
+            filename2 = settings.TMPDIR+"/xsams_col_download.xsams"
 
-        for row in datacol.info().headers:
-            p = row.find("filename=")
-            if p>-1:
-                filename2 = settings.TMPDIR+"/"+row[p+9:].rstrip()
-        
-        local_file = open(filename2, "w")
-        local_file.write(datacol.read())
-        local_file.close()
+        with open(filename2, "wb") as w:
+             w.write(datacol.read())
    
 
         try: result = str(xsl(xml, species1="'%s'" % species1, species2="'%s'" % species2, colfile="'%s'" % filename2)) #"/var/cdms/v1_0/NodeSoftware/nodes/cdms/test/basecol_co.xml"))
-        except Exception,err:
+        except Exception as err:
             raise ValidationError('Could not transform XML file: %s'%err)
     else:
         try: result = str(xsl(xml, species1="'%s'" % species1))
-        except Exception,err:
+        except Exception as err:
             raise ValidationError('Could not transform XML file: %s'%err)
 
     return result
@@ -494,28 +488,26 @@ def applyStylesheet(inurl, xsl = None):
         xsl=e.XSLT(e.parse(open(xsl)))
     else:
         xsl=e.XSLT(e.parse(open(settings.XSLT_DIR + 'convertXSAMS2html.xslt')))
-    from urllib2 import urlopen
     try: data = urlopen(inurl)
 
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not open given URL: %s'%err)
+
     # Save XML-File to temporary directory
-    filename = settings.TMPDIR+"/xsams_download.xsams"
+    try:
+        filename = settings.TMPDIR + "/" + data.getheader('Content-Disposition').split('filename=')[1]
+    except:
+        filename = settings.TMPDIR+"/xsams_download.xsams"
 
-    for row in data.info().headers:
-      p = row.find("filename=")
-      if p>-1:
-        filename = settings.TMPDIR+"/"+row[p+9:].rstrip()
+    with open(filename, "wb") as w:
+         w.write(data.read())
 
-    local_file = open(filename, "w")
-    local_file.write(data.read())
-    local_file.close()
     try: xml=e.parse(filename)
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not parse XML file: %s'%err)
 
     try: result = str(xsl(xml))
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not transform XML file: %s'%err)
     return  result 
 
@@ -533,14 +525,12 @@ def applyStylesheet2File(infile, xsl = None):
     else:
         xsl=e.XSLT(e.parse(open(settings.XSLT_DIR + 'convertXSAMS2html.xslt')))
         
-    from urllib2 import urlopen
-
     try: xml=e.parse(infile)
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not parse XML file: %s'%err)
 
     try: result = str(xsl(xml))
-    except Exception,err:
+    except Exception as err:
         raise ValidationError('Could not transform XML file: %s'%err)
     
     return  result
@@ -554,7 +544,7 @@ def getHtmlNodeList():
 
     try:
         nodes = getNodeList()
-    except Exception,err:
+    except Exception as err:
         response+= "<br><br>Error while getting list of nodes!: <br> %s " % err
         nodes = []
 
@@ -627,28 +617,37 @@ def doHeadRequest(url, timeout = 20):
     Does a HEAD request on the given url.
     A list of 'vamdc' - statistic objects is returned
     """
-    from urlparse import urlparse
-    from httplib import HTTPConnection, HTTPSConnection
+#    from urlparse import urlparse
+    from uritools import urisplit
+    from http.client import HTTPConnection, HTTPSConnection
     
-    urlobj = urlparse(url)
-
+    urlobj = urisplit(url) # urlparse(url)
     try:
         if urlobj.scheme == 'https':
-            conn = HTTPSConnection(urlobj.netloc, timeout = timeout)
+            if urlobj.port is not None and urlobj.port != 443:
+               netloc = "%s:%s" % (urlobj.authority, urlobj.port)
+            else:
+               netloc = urlobj.authority
+            conn = HTTPSConnection(netloc, timeout = timeout)
         else:
-            conn = HTTPConnection(urlobj.netloc, timeout = timeout)
+            if urlobj.port is not None and urlobj.port != 80:
+               netloc = "%s:%s" % (urlobj.authority, urlobj.port)
+            else:
+               netloc = urlobj.authority
+            conn = HTTPConnection(netloc, timeout = timeout)
         conn.request("HEAD", urlobj.path+"?"+urlobj.query)
         res = conn.getresponse()
+        status = res.status
     except Exception as e:
         # error handling has to be included
         print("Fehler in Head - Request: %s" % url )
         print(e)
         vamdccounts = [] #[('error', 'no response')]
-        return vamdccounts
+        return vamdccounts, str(e) 
 
     if res.status == 200:
-        vamdccounts = [item for item in res.getheaders() if item[0][0:5]=='vamdc']
-        content = [item for item in res.getheaders() if item[0][0:7]=='content']
+        vamdccounts = [(item[0].lower(), item[1].lower()) for item in res.getheaders() if item[0][0:5].lower() =='vamdc']
+        content = [(item[0].lower(), item[1].lower()) for item in res.getheaders() if item[0][0:7].lower() =='content']
     elif res.status == 204:
         vamdccounts = [ ("vamdc-count-species",0),
                         ("vamdc-count-states",0),
@@ -667,7 +666,7 @@ def doHeadRequest(url, timeout = 20):
                         ("vamdc-approx-size",0),
                         ("vamdc-count-radiative",0),
                         ("vamdc-count-atoms",0)]
-    return vamdccounts
+    return vamdccounts, str(res.status)
     
 def getNodeStatistic(baseurl, inchikey, url = None):
     """
@@ -690,9 +689,11 @@ def getNodeStatistic(baseurl, inchikey, url = None):
         url = baseurl.rstrip()+query
         orig_url=url
     try:
-        vamdccounts = doHeadRequest(url)
-    except:
-        vamdccounts = []
+        vamdccounts, status = doHeadRequest(url)
+        error = ""
+    except Exception as e:
+        vamdccounts, status = [], "-1"
+        error = str(e)
         
     vc = {}
     vc['url']=orig_url
@@ -707,7 +708,7 @@ def getNodeStatistic(baseurl, inchikey, url = None):
         response += "<li><INPUT TYPE=\"button\" NAME=\"T_SHOW\" ONCLICK=\"$('#queryresult').html('Processing ...');docShowSubpage('form_result');ajaxQuery('ajaxQuery','"+url+"')\" VALUE = \"Show Data\" >"
         response += "<INPUT TYPE=\"button\" NAME=\"T_SHOW\" ONCLICK=\""+url+"\" VALUE = \"Download Data\" ></li>"
     else:
-        response += "<li>Nothing found"
+        response += "<li>Nothing found</li>"
 
     response += "</ul>"
     
@@ -717,7 +718,6 @@ def getNodeStatistic(baseurl, inchikey, url = None):
 def getspecies(url):
 
     from lxml import etree
-    from urllib2 import urlopen
 
     url=url.replace('rad3d','XSAMS')
     url=url.replace('png','XSAMS')
@@ -776,7 +776,7 @@ def getspecies(url):
                              'inchikey':inchikey,
                              'comment':comment,
                              'url':url,})
-            except Exception, e:
+            except Exception as e:
                 print >> sys.stderr, "ERROR %s" % e #pass
     except:
         return "ERROR 2"

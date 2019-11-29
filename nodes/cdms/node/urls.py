@@ -19,7 +19,7 @@ urlpatterns = [
                        path('queryPage', views.queryPage, name = 'queryPage'),                       
                        path('queryForm', views.query_form, name = 'query_form'), 
                        path('querySpecies', views.queryspecies, name = 'querySpecies'),
-                       path('html_list/([a-z]{1,20})/$', views.html_list, name = 'html_list'),
+                       re_path(r'html_list/([a-z]{1,20})/$', views.html_list, name = 'html_list'),
 #                       (r'^json_list/([a-z]{1,20})/$', cache_page(60*15)('json_list')),
                        re_path(r'json_list/([a-z]{1,20})/$', views.json_list, name = 'json_list'),
                        path('selectSpecie2', views.selectSpecie2),

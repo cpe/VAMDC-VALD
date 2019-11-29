@@ -8,7 +8,7 @@ import datetime
 def LOG(s):
     if settings.DEBUG: print >> sys.stderr, s
 
-from dictionaries import *
+from node.dictionaries import *
 from itertools import chain
 from copy import deepcopy
 
@@ -93,6 +93,24 @@ def remap_species(datasets):
 
     return species
 
+def add_states(transs, species):
+    nstates = 0
+    for specie in species:
+        subtranss = transs.filter(species=specie)
+        sids = subtranss.values_list('upperstateref', 'lowerstateref')
+        sids = set(item for s in sids for item in s)
+        nstates += len(sids)
+        states = States.objects.filter(pk__in = sids)
+        state_origin = OriginStates.filter(pk__in = sids)
+        nsi_origins = OriginStates(manager = 'nsi_objects').filter(pk__in = sids)
+        origins = state_origin | nsi_origins
+        for s in origins:
+            s.id = s.id_alias()
+            s.aux = True
+        specie.States = states #list(chain(origins, states))
+
+    return species, nstates
+
 def get_species_and_states(transs, addStates = True, filteronatoms = False):
     """
     Returns list of species including all states which occur in the list
@@ -105,10 +123,7 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
     """
 
     # Get list of specie-ids which occur in transitions
-    if filteronatoms:
-        spids = set( transs.values_list('specie_id',flat=True).distinct() )
-    else:
-        spids = transs.values_list('specie_id',flat=True)
+    spids = set( transs.values_list('specie_id',flat=True).distinct() )
 
     # Species object for CDMS includes Atoms AND Molecules. Both can only
     # be distinguished through numberofatoms-field
@@ -135,7 +150,9 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
                 s.id = s.id_alias()
                 s.aux = True
             # attach states to molecule object
-            m.States = chain(origins, states)
+            m.States = list(chain(origins, states))
+ #       molecules, nms = add_states(transs, molecules)
+ #       nstates += nms
 
         for a in atoms:
             states = a.atomstates_set.filter(Q(pk__in= up) | Q(pk__in= low))
@@ -143,7 +160,7 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
             for s in origins:
                 s.id = s.id_alias()
                 s.aux = True
-            m.States = chain(origins, states)
+            a.States = chain(origins, states)
 
         # determine the number of states
         nstates = States.objects.filter(pk__in=chain(up,low)).count()
