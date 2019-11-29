@@ -87,6 +87,7 @@ class TAPQUERY(object):
         self.HTTPmethod = request.method
         self.isvalid = True
         self.errormsg = ''
+        self.token = request.token
         try:
             self.request=CaselessDict(dict(request.GET or request.POST))
         except Exception,e:
@@ -177,7 +178,9 @@ def addHeaders(headers,request,response):
            'COUNT-RADIATIVE',
            'COUNT-NONRADIATIVE',
            'TRUNCATED',
-           'APPROX-SIZE']
+           'APPROX-SIZE',
+           'REQUEST-TOKEN',
+           ]
 
     headers = CaselessDict(headers)
 
