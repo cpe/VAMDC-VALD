@@ -6,7 +6,7 @@ import sys
 import datetime
 
 def LOG(s):
-    if settings.DEBUG: print >> sys.stderr, s
+    if settings.DEBUG: print(s)
 
 from node.dictionaries import *
 from itertools import chain
@@ -456,6 +456,9 @@ def returnResults(tap, LIMIT=None):
     # use tap.parsedSQL.columns instead of tap.requestables
     # because only the selected columns should be returned and no additional ones
     col = tap.parsedSQL.columns #.asList()
+    # bugfix: col = [[]], needs to be checked if this is a bug
+    if len(col)>0:
+        col = col[0]
     if temperature == 300.0:
         transs = RadiativeTransitions.objects.filter(q,specie__archiveflag=0,dataset__archiveflag=0) #,energylower__gt=0) 
     else:
@@ -471,11 +474,10 @@ def returnResults(tap, LIMIT=None):
 #        percentage = '%.1f' % (float(LIMIT)/ntrans * 100)
 #    else:
     percentage = '100'
-#    print 'Truncated to %s %%' % percentage
 
 
     # Prepare Transitions
-    if (col=='ALL' or 'radiativetransitions' in [x.lower() for x in col]):
+    if ('ALL' in col or '*' in col or 'radiativetransitions' in [x.lower() for x in col]):
         LOG('TRANSITIONS')
         orderby = tap.request.get('ORDERBY')
         if orderby is None:

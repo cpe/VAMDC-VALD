@@ -213,13 +213,7 @@ def atomsymbol(r,op,*rhs):
         return Q(**{'specie__molecule__stoichiometricformula'+op:ins[0]}) & Q(**{'specie__molecule__numberofatoms'+'':'Atomic'})
 
     except Exception as e:
-        #print >> sys.stderr, e
-        #print >> sys.stderr, "RHS: op: "+op
-        #for i in rhs:
-        #    print >> sys.stderr, i
-    
-        #print >> sys.stderr, "DICTIONARY EX"
-#        return Q(**{'specie__molecule__stoichiometricformula'+'__exact':'C'}) #Q(**{'specie__molecule__numberofatoms'+'':'Atomic'})
+        print("(cdms/dictionary) - Error: %s" % str(e))
         return Q(pk__isnull=True)
 
 def stoichiometricformula(r,op,rhs):
@@ -265,7 +259,7 @@ def processclass(r, op, *rhs):
             
         return QFalse
     except Exception as e:
-        print >> sys.stderr, str(e)
+        print("(cdms/dictionary) - Error: %s" % str(e))
         return QFalse
 
 def environment(r, op, *rhs):

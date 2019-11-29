@@ -6,7 +6,7 @@ import sys
 import datetime
 
 def LOG(s):
-    if settings.DEBUG: print >> sys.stderr, s
+    if settings.DEBUG: print(s)
 
 from node.dictionaries import *
 from itertools import chain
@@ -167,85 +167,6 @@ def get_species_and_states(transs, addStates = True, filteronatoms = False):
 
     return atoms,molecules,nspecies,nstates
 
-def get_species_and_states_old(transs, addStates=True, filteronatoms=False):
-    """
-    Returns list of species including all states which occur in the list
-    of transitions.
-    Returns:
-    - Atoms
-    - Molecules
-    - Number of species
-    - Number of states
-    """
-
-    # Get list of specie-ids which occur in transitions
-    if filteronatoms:
-        spids = set( transs.values_list('specie_id',flat=True).distinct() )
-    else:
-        spids = transs.values_list('specie_id',flat=True)
-
-    # Species object for CDMS includes Atoms AND Molecules. Both can only
-    # be distinguished through numberofatoms-field
-    atoms = Species.objects.filter(pk__in=spids, molecule__numberofatoms__exact='Atomic', origin=0, archiveflag=0)
-    molecules = Species.objects.filter(pk__in=spids, origin=0, archiveflag=0).exclude(molecule__numberofatoms__exact='Atomic') #,ncomp__gt=1)
-
-    # Calculate number of species in total
-    nspecies = atoms.count() + molecules.count()
-
-    # Intialize state-counter
-    nstates = 0
-
-    if addStates:
-        # Loop through list of species and attach states
-        for specie in chain( molecules):
-            #dds=Datasets.objects.filter(specie=specie, archiveflag=0, hfsflag=specie.hfs).values_list('id',flat=True)
-            #dds=set(dds)
-
-            # Get distinct list of States which
-            # occur as lower or upper state in transitions
-            subtranss = transs.filter(specie=specie, dataset__archiveflag=0)
-            up=subtranss.values_list('upperstateref',flat=True)
-            lo=subtranss.values_list('lowerstateref',flat=True)
-            sids = set(chain(up,lo))
-            states = States.objects.filter( pk__in = sids)
-            # Get energy origins
-            origin_ids = states.values_list('energyorigin',flat=True).distinct()
-            nsi_origin_ids = NuclearSpinIsomers.objects.filter(pk__in=states.values_list('nsi',flat=True)).values_list('lowestrovibstate',flat=True)
-            # nsi_origin_ids = States.objects.filter(pk__in = sids).values_list('nsioriginid',flat=True).distinct()
-            origin_ids = set(chain(origin_ids,nsi_origin_ids))
-            origins = States.objects.filter(pk__in = origin_ids)
-
-            # Create new ID for 'origin'-states
-            # These states occur twice in the output
-            # species-id is used to make id unique (origin-state could be a state of another specie if v>0)
-            for state in origins:
-                state.id = "%s-origin-%s" % (state.id, specie.id)
-                state.aux = True
-
-            # Attach states to species object            
-            specie.States = chain(origins, states)
-            # Add number of attached states to state-counter
-            nstates += states.count()
-
-                
-        for specie in chain(atoms ):
-            #dds=Datasets.objects.filter(specie=specie, archiveflag=0, hfsflag=specie.hfs).values_list('id',flat=True)
-            #dds=set(dds)
-            # Get distinct list of States which
-            # occur as lower or upper state in transitions
-            subtranss = transs.filter(specie=specie, dataset__archiveflag=0)
-            up=subtranss.values_list('upperstateref',flat=True)
-            lo=subtranss.values_list('lowerstateref',flat=True)
-            sids = set(chain(up,lo))
-            # Attach states to species object
-            specie.States = AtomStates.objects.filter( pk__in = sids)
-            # Add number of attached states to state-counter
-            nstates += specie.States.count()
-
-                
-    return atoms,molecules,nspecies,nstates
-
-
 def get_sources(atoms, molecules, methods = []):
     """
     Get a complete list of sources and methods for the set of
@@ -373,7 +294,6 @@ def setupResults(sql):
     filteronmols = "Molecule" in sql.query
     filteronspecieid = "SpeciesID" in sql.query
     filteronspecies = ("Ion" in sql.query) | filteronmols | filteroninchi | filteronatoms | filteronspecieid
-    q = sql2Q(sql)
 
     temperature = 300.0
     if not sql.parsedSQL.where:
@@ -536,6 +456,9 @@ def returnResults(tap, LIMIT=None):
     # use tap.parsedSQL.columns instead of tap.requestables
     # because only the selected columns should be returned and no additional ones
     col = tap.parsedSQL.columns #.asList()
+    # bugfix: col = [[]], needs to be checked if this is a bug
+    if len(col)>0:
+        col = col[0]
     if temperature == 300.0:
         transs = RadiativeTransitions.objects.filter(q,specie__archiveflag=0,dataset__archiveflag=0) #,energylower__gt=0) 
     else:
@@ -555,7 +478,7 @@ def returnResults(tap, LIMIT=None):
 
 
     # Prepare Transitions
-    if (col=='ALL' or 'radiativetransitions' in [x.lower() for x in col]):
+    if ('ALL' in col or '*' in col or 'radiativetransitions' in [x.lower() for x in col]):
         LOG('TRANSITIONS')
         orderby = tap.request.get('ORDERBY')
         if orderby is None:

@@ -777,7 +777,7 @@ def getspecies(url):
                              'comment':comment,
                              'url':url,})
             except Exception as e:
-                print >> sys.stderr, "ERROR %s" % e #pass
+                print("(cdms/cdmsportalfunc) - ERROR %s" % str(e))
     except:
         return "ERROR 2"
 

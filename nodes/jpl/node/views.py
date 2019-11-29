@@ -192,7 +192,7 @@ def tools(request):
                 'attachment; filename=%s.%s'% (form.cleaned_data.get('infile') or 'output', form.cleaned_data.get('format') )
             return response
         else:
-            print >> sys.stderr, "IS NOT VALID"
+            print("(cdms/tools) INVALID RESPONSE")
 
     else:
         form = XsamsConversionForm()
@@ -299,7 +299,7 @@ def json_list(request, content='species'):
                  }
             species_list.append(s) 
         except Exception as e:
-            print("Error: %s" % e)
+            print("Error: %s" % str(e))
             error = e
             
     response_dict.update({'species' : species_list,'database' : db, 'error': error})
@@ -409,9 +409,7 @@ def ajaxRequest(request):
         elif request.POST['function'] == 'ajaxQuery':
             ##### TEST TEST TEST TEST ###########
             # get result and return it via ajax
-            #print >> sys.stderr, "url = " +request.POST['url']
             # just apply the stylesheet if a complete url has been posted
-
             baseurl = request.POST.get('nodeurl', settings.BASE_URL + settings.TAP_URLPATH)
             
             if 'url2' in request.POST:
@@ -428,16 +426,12 @@ def ajaxRequest(request):
                                                                  xsl = FILENAME_XSAMS2HTML)) + "</pre>"
                     elif postvars.format=='rad3d':
                         #ouput = str(applyRadex(postvars.url, xsl = FILENAME_MERGERADEX))
-#                        url4="http://batz.lpma.jussieu.fr:8080/tapservice_11_12/TAP/sync?LANG=VSS2&REQUEST=doQuery&FORMAT=XSAMS&QUERY=select+*+where+%28reactant0.InchiKey+%3D+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27%29"
-                        url4="http://dev.vamdc.org/basecol/tapservice_12_07/TAP/sync?LANG=VSS2&REQUEST=doQuery&FORMAT=XSAMS&QUERY=select+*+where+%28reactant0.InchiKey+%3D+%27UGFAIRIUMAVXCW-UHFFFAOYSA-N%27%29"
-
                         output = str(applyRadex(postvars.spec_url, species1=postvars.spec_speciesid, species2=postvars.col_speciesid, inurl2=postvars.col_url))
-                        
                         htmlcode = "<pre>" + output + "</pre>"
                     elif postvars.format=='png':
                         htmlcode = "<img class='full' width='100%' src="+postvars.url+" alt='Stick Spectrum'>"
                     else:
-                        htmlcode = "<pre>" + str(geturl(postvars.url)) + "</pre>"
+                        htmlcode = "<pre>" + geturl(postvars.url).decode('utf-8') + "</pre>"
                 else:
                     htmlcode = "<p> Invalid request </p>"
 
