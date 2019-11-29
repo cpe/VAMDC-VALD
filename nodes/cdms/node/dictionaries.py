@@ -243,7 +243,7 @@ def processclass(r, op, *rhs):
             if not (rhs[0]=='(' and rhs[-1]==')'):
                 log.error('Values for IN not bracketed: %s'%rhs)
             else: rhs=rhs[1:-1]
-            
+
             ins = map(strip,rhs,('\'"',)*len(rhs))
 
             for i in ins:
