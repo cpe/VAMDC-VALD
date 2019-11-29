@@ -3,6 +3,7 @@
 
 {% block content %}
 <form name="form_result" id="form_result" action="index.php" class="yform full" method="post">
+ {% csrf_token %}
  {% for id in postvars.speciesIDs %}
  <INPUT TYPE="HIDDEN" NAME="speciesIDs" VALUE="{{id}}">
  {% endfor %}

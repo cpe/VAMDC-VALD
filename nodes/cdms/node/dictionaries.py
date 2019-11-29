@@ -178,7 +178,7 @@ RETURNABLES = {
 
 # import the unit converter functions
 from vamdctap.unitconv import *
-from string import strip
+#from string import strip
 import sys
 # Q-objects for always True / False
 QTrue = Q(pk=F('pk'))
@@ -212,7 +212,7 @@ def atomsymbol(r,op,*rhs):
         ins = map(strip,rhs,('\'"',)*len(rhs))
         return Q(**{'specie__molecule__stoichiometricformula'+op:ins[0]}) & Q(**{'specie__molecule__numberofatoms'+'':'Atomic'})
 
-    except Exception, e:
+    except Exception as e:
         #print >> sys.stderr, e
         #print >> sys.stderr, "RHS: op: "+op
         #for i in rhs:

@@ -239,7 +239,9 @@ class States( Model):
           return '%s-origin-%s' % (self.nsioriginid, self.specie_id)
 
      def qns_xml(self):
-	"""Yield the XML for the state quantum numbers"""
+	"""
+        Yield the XML for the state quantum numbers
+        """
         # remove "-origin" in order to retrieve also qns for state-origins
         try:
              #sid = self.id.replace('-origin-%s' % self.specie_id,'')

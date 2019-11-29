@@ -1,47 +1,51 @@
 # Optional:
 # Use this file to connect views from views.py in the same
-# directory to their URLs.
-from django.contrib.auth.views import login, logout
+# directory to their paths.
+from django.contrib.auth.views import LoginView, LogoutView
 
-#from django.conf.urls.defaults import *
-from django.conf.urls import patterns, url, include
-from django.conf import settings
+#from django.conf.paths.defaults import *
+from django.urls import path, include, re_path
+#from django.conf import settings
 
-from django.views.decorators.cache import cache_page
+#from django.views.decorators.cache import cache_page
+from . import views
+
 #
-urlpatterns = patterns(settings.NODENAME+'.node.views',
-                       (r'^$', 'index'),
-                       (r'^cdms$', 'index'),
-                       (r'^home', 'index'),
-                       (r'^queryPage', 'queryPage'),                       
-                       (r'^queryForm', 'query_form'), 
-                       (r'^querySpecies', 'queryspecies'),
-                       (r'^html_list/([a-z]{1,20})/$', 'html_list'),
+urlpatterns = [
+#                       settings.NODENAME+'.node.views',
+                       path('', views.index, name = 'index'),
+                       path('cdms$', views.index, name ='cdms'),
+                       path('home', views.index, name = 'home'),
+                       path('queryPage', views.queryPage, name = 'queryPage'),                       
+                       path('queryForm', views.query_form, name = 'query_form'), 
+                       path('querySpecies', views.queryspecies, name = 'querySpecies'),
+                       path('html_list/([a-z]{1,20})/$', views.html_list, name = 'html_list'),
 #                       (r'^json_list/([a-z]{1,20})/$', cache_page(60*15)('json_list')),
-                       (r'^json_list/([a-z]{1,20})/$', 'json_list'),
-                       (r'^selectSpecie2', 'selectSpecie2'),
-                       (r'^selectSpecie', 'selectSpecie'),
-                       (r'^catalog/(\d{1,5})/$', 'catalog'),
-                       (r'^catalog', 'catalog'),
-                       (r'^showResults', 'showResults'),
-                       (r'^ajaxRequest', 'ajaxRequest'),
-                       (r'^downloadData', 'download_data'),
+                       re_path(r'json_list/([a-z]{1,20})/$', views.json_list, name = 'json_list'),
+                       path('selectSpecie2', views.selectSpecie2),
+                       path('selectSpecie', views.selectSpecie),
+                       path('catalog/(\d{1,5})/$', views.catalog, name = 'catalog'),
+                       path('catalog', views.catalog, name = 'catalog'),
+                       path('showResults', views.showResults),
+                       path('ajaxRequest', views.ajaxRequest),
+                       path('downloadData', views.download_data),
 #                       (r'^xsams2html', 'xsams2html'),
-                       (r'^tools', 'tools'),
-                       (r'^general', 'general'),
-                       (r'^contact', 'contact'),
-                       (r'^help', 'help'),
-                       (r'^overview$','specieslist'),
+                       path('tools', views.tools, name = 'tools'),
+                       path('general', views.general, name = 'general'),
+                       path('contact', views.contact, name = 'contact'),
+                       path('help', views.help, name = 'help'),
+                       path('overview$', views.specieslist, name = 'overview'),
               #         (r'^molecules', 'molecule'),                       
               #         (r'^species/(\d{1,5})/$', 'specie'),
-                       (r'^getfile/(\d{1,5})/$', 'getfile'),
-                       (r'^cdms_lite', 'cdms_lite_download'),
-                       (r'^recommendation/list/$', 'recommendation_list'),
-                       (r'^recommendation/(\d{1,5})/$', 'is_recommended'),
-                       (r'^recommendation/XCDMS-(\d{1,5})/$', 'is_recommended'),
-                       (r'^recommendation/XJPL-(\d{1,5})/$', 'is_recommended'),
+                       path('getfile/(\d{1,5})/$', views.getfile),
+                       path('cdms_lite', views.cdms_lite_download),
+                       path('recommendation/list/$', views.recommendation_list),
+                       path('recommendation/(\d{1,5})/$', views.is_recommended),
+                       path('recommendation/XCDMS-(\d{1,5})/$', views.is_recommended),
+                       path('recommendation/XJPL-(\d{1,5})/$', views.is_recommended),
               #         (r'^references', 'referencelist'),                       
               #         (r'^filters/(\d{1,5})/$', 'filters'),                      
-                       (r'^login/$',  login, {'template_name': 'cdmsadmin/login.html'}),
-                       (r'^accounts/logout/$', logout, {'template_name': 'cdmsadmin/login.html'}), 
-                       )
+ #                      path(r'^login/$',  login, {'template_name': 'cdmsadmin/login.html'}),
+                       
+                       path('accounts/logout/$', LogoutView.as_view(template_name= 'cdmsadmin/login.html')), 
+]

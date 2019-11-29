@@ -5,7 +5,7 @@
 {% block content %}	  
 <div id="main">
   <form name="PARAMETER" action="./{{action}}" class="yform full" role="application"  method="post">
- 
+ {% csrf_token %}
 
   <!-- begin: #col1 - first float column -->
     <div id="col1"  role="complementary">
