@@ -130,8 +130,11 @@ class TAPQUERY(object):
 
         self.requestables = set()
         self.where = self.parsedSQL.where
-        if self.parsedSQL.columns not in ('*', 'ALL'):
-            for r in self.parsedSQL.columns:
+        self.columns = self.parsedSQL.columns[0]
+        print(self.columns)
+        if self.columns[0] not in ('*', 'ALL'):
+            for r in self.columns:
+                print(r)
                 r = r.lower()
                 if r not in REQUESTABLES:
                     self.errormsg += 'Unknown Requestable: %s\n' % r

@@ -9,19 +9,17 @@ routines for querying the registry
 #DEV_REG='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
 #REG='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
 
-REGURL=DEV_REG
-REGURL=REL_REG
-REGURL='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
-REGURL='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
+#REGURL=DEV_REG
+#REGURL=REL_REG
+#REGURL='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
+#REGURL='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
 REGURL='http://registry-dev.vamdc.eu/registry-dev-12.07/services/RegistryQueryv1_0'
 
 WSDL=REGURL+'?wsdl'
-#REGURL=REG
-#WSDL=REGURL+'?wsdl'
 
 # this is a copy of the URL above but with
 # schema locations fixed:
-WSDL = 'https://tmy.se/t/reg_wsdl.xml'
+#WSDL = 'https://tmy.se/t/reg_wsdl.xml'
 
 from suds.client import Client
 
@@ -58,4 +56,4 @@ def getNodeList():
     return nameurls
 
 if __name__ == '__main__':
-    print getNodeList()
+    print(getNodeList())

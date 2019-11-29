@@ -12,6 +12,12 @@ DICTS = import_module(settings.NODEPKG + '.dictionaries')
 from requests.utils import CaseInsensitiveDict as CaselessDict
 RETURNABLES = CaselessDict(DICTS.RETURNABLES)
 
+# python 3 compatibility
+try:
+    xrange
+except NameError:
+    xrange = range
+
 # This must always be set.
 try:
     NODEID = RETURNABLES['NodeID']
@@ -109,7 +115,7 @@ def GetValue(returnable_key, **kwargs):
         exec('%s = obj' % objname)
         try:
             value = eval(name)
-        except Exception, e:
+        except Exception as e:
             value = name
         return value
     # strip the prefix
