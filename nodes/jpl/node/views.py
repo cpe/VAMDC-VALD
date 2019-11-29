@@ -376,7 +376,7 @@ def showResults(request):
     try:
         context = {"postvars": postvars, "result" : result, "readyfunc":readyfunc}
     except UnicodeError as e:
-        context = {"postvars": postvars, "result" : result.decode('utf-8')}
+        context = {"postvars": postvars, "result" : result}
         return render(request, 'cdmsportal/showResults2.html', context)
 
     except Exception as err:
@@ -385,7 +385,7 @@ def showResults(request):
     try:
         return render(request, 'cdmsportal/showResults2.html', context)
     except UnicodeError as e:
-        context = {"postvars": postvars, "result" : result.decode('utf-8')}
+        context = {"postvars": postvars, "result" : result}
         return render(request, 'cdmsportal/showResults2.html', context)
     except Exception as err:
         context = {"postvars": postvars, "result" : err}
@@ -437,7 +437,7 @@ def ajaxRequest(request):
                     elif postvars.format=='png':
                         htmlcode = "<img class='full' width='100%' src="+postvars.url+" alt='Stick Spectrum'>"
                     else:
-                        htmlcode = "<pre>" + str(geturl(postvars.url).decode('utf-8')) + "</pre>"
+                        htmlcode = "<pre>" + str(geturl(postvars.url)) + "</pre>"
                 else:
                     htmlcode = "<p> Invalid request </p>"
 
