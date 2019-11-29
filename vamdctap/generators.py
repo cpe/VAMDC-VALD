@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape
 from django.conf import settings
 from importlib import import_module
 DICTS = import_module(settings.NODEPKG + '.dictionaries')
-from caselessdict import CaselessDict
+from requests.utils import CaseInsensitiveDict as CaselessDict
 RETURNABLES = CaselessDict(DICTS.RETURNABLES)
 
 # This must always be set.
@@ -31,7 +31,10 @@ import logging
 log = logging.getLogger('vamdc.tap.generator')
 
 # Helper function to test if an object is a list or tuple
-isiterable = lambda obj: hasattr(obj, '__iter__')
+import six # for python 2 and 3
+from collections import Iterable
+isiterable = lambda obj: not isinstance(obj, six.string_types) \
+                and isinstance(obj, Iterable)
 
 def makeiter(obj, n=0):
     """
@@ -86,7 +89,7 @@ def GetValue(returnable_key, **kwargs):
     try:
         #obtain the RHS of the RETURNABLES dictionary
         name = RETURNABLES[returnable_key]
-    except Exception, e:
+    except Exception as e:
         # The value is not in the dictionary for the node.  This is
         # fine.  Note that this is also used by if-clauses below since
         # the empty string evaluates as False.
@@ -175,7 +178,7 @@ def makePartitionfunc(keyword, G):
     unit = G(keyword+'Unit')
     partitionfunc = G(keyword+'Q')
     comments = G(keyword+'Comments')
-    # Nuclear Spin Isomer Information 
+    # Nuclear Spin Isomer Information
     nsilowrovibsym = G(keyword+'NSILowestRoVibSym')
     nsiname = G(keyword+'NSIName')
     nsisymgroup = G(keyword+'NSISymGroup')
@@ -187,7 +190,7 @@ def makePartitionfunc(keyword, G):
         unit = [unit]
         partitionfunc = [partitionfunc]
         comments = [comments]
-        # Nuclear Spin Isomer Information 
+        # Nuclear Spin Isomer Information
         nsilowrovibsym = [nsilowrovibsym]
         nsiname = [nsiname]
         nsisymgroup = [nsisymgroup]
@@ -261,7 +264,7 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
     value = G(keyword)
     if not value:
         return ''
-    
+
     unit = G(keyword + 'Unit')
     method = G(keyword + 'Method')
     comment = G(keyword + 'Comment')
@@ -296,8 +299,11 @@ def makeRepeatedDataType(tagname, keyword, G, extraAttr={}):
         string += makeSourceRefs(refs[i])
         string += '<Value units="%s">%s</Value>' % (unit[i] or 'unitless', val)
         string += makeEvaluation( keyword, G, j=i)
-        if acc[i] is not None:
-            string += '<Accuracy>%s</Accuracy>' % acc[i]
+
+        # This is broken, makes empty <Accuracy/>.
+        # TODO: Proper solution is to add j-parameter to makeAccuracy(), similar to makeEvalution()
+        #if acc[i] is not None:
+        #    string += '<Accuracy>%s</Accuracy>' % acc[i]
 
 
         string += '</%s>' % tagname
@@ -1770,6 +1776,19 @@ def XsamsCollTrans(CollTrans):
                                     if hilim:
                                         yield "<UpperLimit>%s</UpperLimit>" % hilim
                                     yield "</FitArgument>"
+
+                            if hasattr(FitData, "Evaluations"):
+                                for Evaluation in FitData.Evaluations:
+                                    cont, ret = checkXML(Evaluation)
+                                    if cont:
+                                        yield ret
+                                        continue
+
+
+                                    GDFE = lambda name: GetValue(name, Evaluation=Evaluation)
+                                    yield "<Evaluation recommended='%s'><Quality>%s</Quality></Evaluation>" % (GDFE("CollisionFitDataEvalRecommended"), GDFE("CollisionFitDataEval"))
+
+
                             if hasattr(FitData, "Parameters"):
                                 for Parameter in FitData.Parameters:
 
@@ -2006,7 +2025,7 @@ def XsamsHeader(HeaderInfo):
 
     if HeaderInfo:
         HeaderInfo = CaselessDict(HeaderInfo)
-        if HeaderInfo.has_key('Truncated'):
+        if 'Truncated' in HeaderInfo:
             if HeaderInfo['Truncated'] != None: # note: allow 0 percent
                 head.append( """
 <!--
