@@ -558,9 +558,9 @@ def formatqn(value):
     if value == None:
         return ''
     elif value > 99 and value < 360:
-        return chr(55+value/10)+ "%01d" % ( value % 10)
+        return chr(55+value//10)+ "%01d" % ( value % 10)
     elif value < -9 and value > -260:
-        return chr(95-(value-1)/10)+ "%01d" % -( value % -10)
+        return chr(95-(value-1)//10)+ "%01d" % -( value % -10)
     else:
         return str(value)
 
