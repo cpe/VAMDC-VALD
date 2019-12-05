@@ -777,7 +777,7 @@ def xCat(transs):
             yield '   '
             sources = SourcesIDRefs.objects.filter(transitionexp=exptrans.id)
             for source in sources:
-                yield '[%s] ' % source.referenceid.id
+                yield '[%s] ' % source.source.id
 
             yield '</small>\n'
             
