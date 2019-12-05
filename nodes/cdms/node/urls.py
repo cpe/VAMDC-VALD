@@ -14,7 +14,7 @@ from . import views
 urlpatterns = [
 #                       settings.NODENAME+'.node.views',
                        path('', views.index, name = 'index'),
-                       path('cdms$', views.index, name ='cdms'),
+                       path('cdms', views.index, name ='cdms'),
                        path('home', views.index, name = 'home'),
                        path('queryPage', views.queryPage, name = 'queryPage'),                       
                        path('queryForm', views.query_form, name = 'query_form'), 
@@ -39,6 +39,7 @@ urlpatterns = [
               #         (r'^species/(\d{1,5})/$', 'specie'),
                        path('getfile/(\d{1,5})/$', views.getfile),
                        path('cdms_lite', views.cdms_lite_download),
+                       path('cdms_lite.db.gz', views.cdms_lite_download),
                        path('recommendation/list/$', views.recommendation_list),
                        path('recommendation/(\d{1,5})/$', views.is_recommended),
                        path('recommendation/XCDMS-(\d{1,5})/$', views.is_recommended),
