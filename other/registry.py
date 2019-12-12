@@ -13,7 +13,8 @@ routines for querying the registry
 #REGURL=REL_REG
 #REGURL='http://casx019-zone1.ast.cam.ac.uk/registry/services/RegistryQueryv1_0'
 #REGURL='http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
-REGURL='http://registry-dev.vamdc.eu/registry-dev-12.07/services/RegistryQueryv1_0'
+REGURL = 'http://registry-dev.vamdc.eu/registry-dev-12.07/services/RegistryQueryv1_0'
+REGURL = 'http://registry.vamdc.eu/registry-12.07/services/RegistryQueryv1_0'
 
 WSDL=REGURL+'?wsdl'
 
