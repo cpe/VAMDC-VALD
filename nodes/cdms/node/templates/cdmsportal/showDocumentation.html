@@ -156,7 +156,7 @@
 		  </thead>
 		  <tbody>
 		  {% for file in files %}
-		    <tr><td>{{file.name}}</td><td>{{file.type}}</td><td>{{file.comment}}</td><td>{{file.createdate}}</td><td style="background-color:#ccc"><a href="#" onclick="location.href=portal_url+'/getfile/{{file.id}}/'"><img width="30px" src="/static/cdms/img/download.png"></a></td></tr>
+          <tr><td>{{file.name}}</td><td>{{file.type}}</td><td>{{file.comment}}</td><td>{{file.createdate}}</td><td style="background-color:#ccc"><a href="#" onclick="location.href='{% url 'getfile' file.id %}'"><img width="30px" src="/static/cdms/img/download.png"></a></td></tr>
 		  {% endfor %}
 		  </tbody>
 		</table> 

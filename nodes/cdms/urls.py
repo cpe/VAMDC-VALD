@@ -15,11 +15,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-urlpatterns =  [
+urlpatterns = [
     url(r'^tap/', include('vamdctap.urls')),
-    url(r'^portal/', include('nodes.cdms.node.urls')),
+    url(r'^portal/', include('node.urls')),
     # Uncomment this line to include mycdmsadmin if installed
-    # url(r'^mycdmsadmin/', include('nodes.cdms.mycdmsadmin.urls')),
+    url(r'^mycdmsadmin/', include('nodes.cdms.mycdmsadmin.urls',
+        namespace='mycdmsadmin')),
    ]
 
 handler500 = 'vamdctap.views.tapServerError'
